@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>np-canvas-utils</title>
+</head>
+<body>
+    <canvas id="canvas" width="600" height="600"></canvas>
+</body>
+</html>
+<script src="/index.js" charset="utf-8"></script>
+<script type="text/javascript">
+    var npC=new npCanvasUtils('canvas');
+    npC.Circle({
+        x:10,
+        y:10,
+        r:5,
+        fill:'red',
+        strokeWidth:2
+    });
+    npC.Line(0,0,10,10,{
+        fill:'#123456'
+    })
+</script>

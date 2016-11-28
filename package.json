@@ -1,0 +1,19 @@
+{
+  "name": "np-canvas-utils",
+  "version": "1.0.0",
+  "description": "canvas",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "gulp server"
+  },
+  "keywords": [
+    "canvas"
+  ],
+  "author": "huayeta",
+  "license": "ISC",
+  "dependencies": {
+    "browser-sync": "^2.18.2",
+    "gulp": "^3.9.1"
+  }
+}
