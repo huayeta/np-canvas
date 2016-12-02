@@ -6,6 +6,7 @@ var npCanvas=function(id){
     this.canvasPos = this.canvas.getBoundingClientRect();
     this.canvasList=[];
     this.canvasList_tmp=[];
+    this._events={};
     this.canvas.addEventListener('mousedown',function(e){
         var mouse={
             x:e.clientX-_this.canvasPos.left,
@@ -26,6 +27,12 @@ var npCanvas=function(id){
                         };
                         mouse=mouse_tmp;
                         shape.set(offset);
+                        _this.fire('object:move',{
+                            originEvent:e,
+                            target:shape,
+                            x:offset.x,
+                            y:offset.y
+                        });
                         _this.renderAll();
                     }
                 }
@@ -80,11 +87,9 @@ npCanvas.prototype.Line=function(ele){
     var opts={};
     npCanvas.utils.extends(opts,ele);
     var ctx=this.ctx;
-    var start=opts.start.split(',');
-    var end=opts.end.split(',');
     ctx.beginPath();
-    ctx.moveTo(start[0],start[1]);
-    ctx.lineTo(end[0],end[1]);
+    ctx.moveTo(opts.x1,opts.y1);
+    ctx.lineTo(opts.x2,opts.y2);
     ctx.closePath();
     return this;
 }
@@ -111,6 +116,40 @@ npCanvas.prototype.draws=function(opts){
             this.ctx.fill();
         }
     }
+    return this;
+}
+npCanvas.prototype.on=function(type,cb){
+    if(!this._events[type])this._events[type]=[];
+    this._events[type].push(cb);
+    return this;
+}
+npCanvas.prototype.fire=function(){
+    var _this=this;
+    var args=Array.prototype.slice.call(arguments);
+    var events=this._events[args[0]];
+    var params=args.slice(1);
+    if(events && events.length>0){
+        events.forEach(function(event){
+            event.apply(_this,params);
+        })
+        // for(var i=0,n=events.length;i<n;i++){
+        //     events[i].apply(this,params);
+        // }
+    }
+    return this;
+}
+npCanvas.prototype.unbind=function(type,cb){
+    if(!type)return this._events={};
+    var events=this._events[type];
+    if(events && events.length>0){
+        for(var i=0,n=events.length;i<n;i++){
+            if(events[i]===cb){
+                events.splice(i,-1);
+                break;
+            }
+        }
+    }
+    this._events[type]=events;
     return this;
 }
 npCanvas.utils={};
@@ -146,8 +185,8 @@ npCanvas.Circle=function(obj,draws){
     return this;
 }
 npCanvas.Circle.prototype.set=function(offset){
-    this.x=this.x+offset.x;
-    this.y=this.y+offset.y;
+    this.x+=offset.x;
+    this.y+=offset.y;
     return this;
 }
 /**
@@ -166,7 +205,7 @@ npCanvas.Line=function(obj,draws){
     return this;
 }
 npCanvas.Line.prototype.set=function(offset){
-    this.x1+=offset.x;
+    this.x1=this.x1+offset.x;
     this.y1+=offset.y;
     this.x2+=offset.x;
     this.y2+=offset.y;

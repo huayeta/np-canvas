@@ -27,36 +27,56 @@
 <script src="/index.js" charset="utf-8"></script>
 <script type="text/javascript">
     var canvas=new npCanvas('canvas');
+    var line1=new npCanvas.Line({
+        x1:100,
+        y1:100,
+        x2:200,
+        y2:200
+    },{
+        strokeWidth:10,
+        stroke:'red'
+    });
+    var line2=new npCanvas.Line({
+        x1:200,
+        y1:200,
+        x2:300,
+        y2:300
+    },{
+        strokeWidth:10,
+        stroke:'red'
+    });
     var circle1=new npCanvas.Circle({
         x:100,
         y:100,
         r:50
     },{
-        fill:'rgba(111, 84, 153 , 0.8)'
+        fill:'rgba(111, 84, 153 , 1)'
     });
     var circle2=new npCanvas.Circle({
         x:200,
         y:200,
         r:50
     },{
-        fill:'rgba(0, 33, 66 , 0.8)'
+        fill:'rgba(0, 33, 66 , 1)'
     });
+    circle2.lines=[line1,line2];
     var circle3=new npCanvas.Circle({
         x:300,
         y:300,
         r:50
     },{
-        fill:'rgba(228, 134, 50 , 0.8)'
+        fill:'rgba(228, 134, 50 , 1)'
     });
-    // console.log(circle);
-    var line=new npCanvas.Line({
-        x1:0,
-        y1:0,
-        x2:100,
-        y2:100
-    },{
-        strokeWidth:10,
-        stoke:'#000'
-    });
-    canvas.add(circle1,circle2,circle3);
+    canvas.add(line1,line2,circle1,circle2,circle3);
+    canvas.on('object:move',function(event){
+        var x=event.x;
+        var y=event.y;
+        if(event.target===circle2){
+            line1.x2=circle2.x;
+            line1.y2=circle2.y;
+            line2.x1=circle2.x;
+            line2.y1=circle2.y;
+            canvas.renderAll();
+        }
+    })
 </script>
