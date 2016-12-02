@@ -1,3 +1,3 @@
-## npCanvasUtils
-    - `this.Circle`
-    - `this.Line`
+## npCanvas
+    - `npCanvas.Circle`
+    - `npCanvas.Line`

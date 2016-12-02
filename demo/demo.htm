@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>np-canvas-utils</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        body{
+            /*padding-top: 1000px;*/
+        }
+        #canvas{
+            margin-top: 10px;
+            margin-left: 10px;
+            border: 1px solid #000;
+        }
+    </style>
 </head>
 <body>
     <canvas id="canvas" width="600" height="600"></canvas>
@@ -12,15 +26,37 @@
 </html>
 <script src="/index.js" charset="utf-8"></script>
 <script type="text/javascript">
-    var npC=new npCanvasUtils('canvas');
-    npC.Circle({
-        x:10,
-        y:10,
-        r:5,
-        fill:'red',
-        strokeWidth:2
+    var canvas=new npCanvas('canvas');
+    var circle1=new npCanvas.Circle({
+        x:100,
+        y:100,
+        r:50
+    },{
+        fill:'rgba(111, 84, 153 , 0.8)'
     });
-    npC.Line(0,0,10,10,{
-        fill:'#123456'
-    })
+    var circle2=new npCanvas.Circle({
+        x:200,
+        y:200,
+        r:50
+    },{
+        fill:'rgba(0, 33, 66 , 0.8)'
+    });
+    var circle3=new npCanvas.Circle({
+        x:300,
+        y:300,
+        r:50
+    },{
+        fill:'rgba(228, 134, 50 , 0.8)'
+    });
+    // console.log(circle);
+    var line=new npCanvas.Line({
+        x1:0,
+        y1:0,
+        x2:100,
+        y2:100
+    },{
+        strokeWidth:10,
+        stoke:'#000'
+    });
+    canvas.add(circle1,circle2,circle3);
 </script>
