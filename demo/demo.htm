@@ -69,8 +69,6 @@
     });
     canvas.add(line1,line2,circle1,circle2,circle3);
     canvas.on('object:move',function(event){
-        var x=event.x;
-        var y=event.y;
         if(event.target===circle2){
             line1.x2=circle2.x;
             line1.y2=circle2.y;
@@ -78,5 +76,32 @@
             line2.y1=circle2.y;
             canvas.renderAll();
         }
-    })
+    });
+    canvas.canvas.addEventListener('click',function(){
+        npCanvas.utils.animate({
+            begin:200,
+            changeVal:100,
+            mode:'Bounce.easeOut',
+            callback:function(percentRun){
+                circle2.y=percentRun;
+                canvas.renderAll();
+            }
+        })
+    },false)
+    var index=0;
+    var t;
+    var start=endTime=+new Date();
+    function a(){
+        var endTime=+new Date();
+        // console.log(endTime-start);
+        // start=endTime;
+        index++;
+        // console.timeEnd();
+        // console.time();
+        t=requestAnimationFrame(a);
+        if(index>10){
+            cancelAnimationFrame(t);
+        }
+    }
+    a();
 </script>

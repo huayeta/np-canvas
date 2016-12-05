@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>np-canvas-utils</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        body{
+            /*padding-top: 1000px;*/
+        }
+        #canvas{
+            margin-top: 10px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="600" height="600"></canvas>
+</body>
+</html>
+<script src="/index.js" charset="utf-8"></script>
+<script type="text/javascript">
+    var canvas=new npCanvas('canvas',{
+        backgroundColor:'#000'
+    });
+    var rainbow    = ["#ffcc66", "#ccff66", "#66ccff", "#ff6fcf", "#ff6666"];
+    var dot_arr=[];
+    console.time();
+    for(var i=1000;i>=0;i--){
+        var dot=new npCanvas.Circle({
+            x:Math.round(Math.random()*canvas.canvasPos.width),
+            y:Math.round(Math.random()*canvas.canvasPos.height),
+            r:3
+        },{
+            fill:rainbow[Math.round(Math.random()*rainbow.length)]
+        })
+        // canvas.add(dot);
+        dot_arr.push(dot);
+    }
+    canvas.add.apply(canvas,dot_arr);
+    console.timeEnd();
+</script>
