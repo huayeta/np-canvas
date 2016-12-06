@@ -98,6 +98,14 @@ npCanvas.prototype.rotate=function(draws){
     }
     return this;
 }
+// transform
+npCanvas.prototype.transform=function(draws){
+    var ctx=this.ctx;
+    if(draws.transform){
+        ctx.transform.apply(ctx,draws.transform.split(','));
+    }
+    return this;
+}
 // 绘制数组路径
 npCanvas.prototype.drawShapes=function(lists){
     if(!lists)lists=this.canvasList;
@@ -110,6 +118,8 @@ npCanvas.prototype.drawShape=function(shape,is_drawColor){
     ctx.beginPath();
     //旋转角度
     _this.rotate(shape.draws);
+    // transform
+    _this.transform(shape.draws);
     //绘制
     _this[shape.shape]?_this[shape.shape](shape):'';
     //上色
@@ -431,7 +441,8 @@ npCanvas.utils.cancelAnimationFrame=(function(){
 })();
 npCanvas.utils.animate=function(obj){
     var opts={
-        callback:npCanvas.utils.noop,
+        onChange:npCanvas.utils.noop,
+        onComplete:npCanvas.utils.noop,
         duration:50,
         mode:'Linear',
         begin:0,
@@ -444,8 +455,9 @@ npCanvas.utils.animate=function(obj){
     var _run=function(){
         start++;
         var percentRun=modeModeFn(start,opts.begin,opts.changeVal,opts.duration);
-        opts.callback(percentRun);
+        opts.onChange(percentRun);
         if(start>=opts.duration){
+            opts.onComplete();
             start=null;
             opts=null;
             modeModeFn=null;

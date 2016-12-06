@@ -84,7 +84,16 @@
     },{
         fill:'green'
     })
-    canvas.add(line1,line2,circle1,circle2,circle3,rect1,rect2);
+    var rect3=new npCanvas.Rect({
+        x:450,
+        y:150,
+        width:102,
+        height:102
+    },{
+        fill:'#000',
+        transform:'1,0,0,1,10,0'
+    })
+    canvas.add(line1,line2,circle1,circle2,circle3,rect1,rect2,rect3);
     canvas.on('object:move',function(event){
         if(event.target===circle2){
             line1.x2=circle2.x;
@@ -94,13 +103,17 @@
             canvas.renderAll();
         }
     });
-    npCanvas.utils.animate({
-        begin:200,
-        changeVal:100,
-        mode:'Sine.easeOut',
-        callback:function(percentRun){
-            circle2.y=percentRun;
-            canvas.renderAll();
-        }
-    })
+    function animate(){
+        npCanvas.utils.animate({
+            begin:200,
+            changeVal:100,
+            mode:'Sine.easeOut',
+            onChange:function(percentRun){
+                circle2.y=percentRun;
+                canvas.renderAll();
+            },
+            onComplete:animate
+        })
+    }
+    animate();
 </script>
