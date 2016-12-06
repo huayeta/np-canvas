@@ -102,52 +102,17 @@ npCanvas.prototype.Text=function(ele){
         if(fontSize)ele.height=fontSize;
     }
     if(opts.draws.textAlign)ctx.textAlign=opts.draws.textAlign;
+    if(opts.draws.textBaseline){
+        ctx.textBaseline=opts.draws.textBaseline;
+    }else{
+        ele.textBaseline='alphabetic';
+    }
     ele.width=ctx.measureText(opts.text).width;
-    ctx.fillText(opts.text,opts.x,opts.y);
-    return this;
-}
-// 中心点移动
-npCanvas.prototype.translate=function(draws){
-    var ctx=this.ctx;
-    if(draws.translate){
-        ctx.translate.apply(ctx,draws.translate.split(','));
-    }
-    return this;
-}
-// 旋转角度
-npCanvas.prototype.rotate=function(shape){
-    var ctx=this.ctx;
-    if(shape.draws.angle){
-        this.angle(shape);
-    }else if(shape.draws.rotate){
-        ctx.rotate(shape.draws.rotate*Math.PI/180);
-    }
-    return this;
-}
-// angle
-npCanvas.prototype.angle=function(shape){
-    var ctx=this.ctx;
-    var angle=shape.draws.angle
-    if(angle){
-        switch (shape.shape) {
-            case 'Rect1':
-                ctx.translate(shape.x+shape.width/2,shape.y+shape.height/2);
-                ctx.rotate(angle*Math.PI/180);
-                ctx.translate(-(shape.x+shape.width/2),-(shape.y+shape.height/2));
-                break;
-            default:
-                ctx.translate(shape.x+shape.width/2,shape.y+shape.height/2);
-                ctx.rotate(angle*Math.PI/180);
-                ctx.translate(-(shape.x+shape.width/2),-(shape.y+shape.height/2));
-        }
-    }
-    return this;
-}
-// transform
-npCanvas.prototype.transform=function(draws){
-    var ctx=this.ctx;
-    if(draws.transform){
-        ctx.transform.apply(ctx,draws.transform.split(','));
+    this.drawColor(ele.draws);
+    if(ele.draws.stroke){
+        ctx.strokeText(opts.text,opts.x,opts.y);
+    }else{
+        ctx.fillText(opts.text,opts.x,opts.y);
     }
     return this;
 }
@@ -195,6 +160,51 @@ npCanvas.prototype.drawColor=function(opts){
     }
     return this;
 }
+// 中心点移动
+npCanvas.prototype.translate=function(draws){
+    var ctx=this.ctx;
+    if(draws.translate){
+        ctx.translate.apply(ctx,draws.translate.split(','));
+    }
+    return this;
+}
+// 旋转角度
+npCanvas.prototype.rotate=function(shape){
+    var ctx=this.ctx;
+    if(shape.draws.angle){
+        this.angle(shape);
+    }else if(shape.draws.rotate){
+        ctx.rotate(shape.draws.rotate*Math.PI/180);
+    }
+    return this;
+}
+// angle
+npCanvas.prototype.angle=function(shape){
+    var ctx=this.ctx;
+    var angle=shape.draws.angle
+    if(angle){
+        switch (shape.shape) {
+            case 'Rect1':
+                ctx.translate(shape.x+shape.width/2,shape.y+shape.height/2);
+                ctx.rotate(angle*Math.PI/180);
+                ctx.translate(-(shape.x+shape.width/2),-(shape.y+shape.height/2));
+                break;
+            default:
+                ctx.translate(shape.x+shape.width/2,shape.y+shape.height/2);
+                ctx.rotate(angle*Math.PI/180);
+                ctx.translate(-(shape.x+shape.width/2),-(shape.y+shape.height/2));
+        }
+    }
+    return this;
+}
+// transform
+npCanvas.prototype.transform=function(draws){
+    var ctx=this.ctx;
+    if(draws.transform){
+        ctx.transform.apply(ctx,draws.transform.split(','));
+    }
+    return this;
+}
 npCanvas.prototype.clear=function(){
     this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
 }
@@ -208,19 +218,27 @@ npCanvas.prototype.isMouseInGraph=function(ele,mouse){
     var ctx=this.ctx;
     switch (ele.shape) {
         case 'Text':
+            var textBaseline=ele.draws.textBaseline;
+            var y=ele.y;
+            if(textBaseline=='top' || textBaseline=='hanging'){
+                y=ele.y;
+            }else if(textBaseline=='bottom' || textBaseline=='alphabetic'){
+                y=ele.y-ele.height
+            }else if(textBaseline=='middle'){
+                y=ele.y-ele.height/2
+            }
             var shape=new npCanvas.Rect({
                 x:ele.x,
-                y:ele.y-ele.height,
+                y:y,
                 width:ele.width,
                 height:ele.height
             },ele.draws);
             this.drawShape(shape,false);
-            return  ctx.isPointInPath(mouse.x , mouse.y);
             break;
         default:
             this.drawShape(ele,false);
-            return  ctx.isPointInPath(mouse.x , mouse.y);
     }
+    return  ctx.isPointInPath(mouse.x , mouse.y);
 }
 npCanvas.prototype.setStyle=function(){
     var style=this.style;
