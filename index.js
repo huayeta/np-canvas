@@ -64,29 +64,13 @@ npCanvas.prototype.add=function(){
     var _this=this;
     var args=Array.prototype.slice.apply(arguments);
     this.canvasList=this.canvasList.concat(args);
-    args.forEach(function(shape){
-        _this[shape.shape]?_this[shape.shape](shape):'';
-        _this.draws(shape.draws);
-    })
-}
-npCanvas.prototype.clear=function(){
-    this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
-}
-npCanvas.prototype.renderAll=function(){
-    var _this=this;
-    this.clear();
-    this.canvasList.forEach(function(shape){
-        _this[shape.shape]?_this[shape.shape](shape):'';
-        _this.draws(shape.draws);
-    })
+    this.drawShapes(args);
 }
 // 画圆
 npCanvas.prototype.Circle=function(ele){
     var opts={};
     npCanvas.utils.extends(opts,ele);
-    this.ctx.beginPath();
     this.ctx.arc(opts.x,opts.y,opts.r,0,2*Math.PI);
-    this.ctx.closePath();
     return this;
 }
 // 画线
@@ -94,18 +78,48 @@ npCanvas.prototype.Line=function(ele){
     var opts={};
     npCanvas.utils.extends(opts,ele);
     var ctx=this.ctx;
-    ctx.beginPath();
     ctx.moveTo(opts.x1,opts.y1);
     ctx.lineTo(opts.x2,opts.y2);
-    ctx.closePath();
     return this;
 }
-//isMouseInGraph
-npCanvas.prototype.isMouseInGraph=function(ele,mouse){
-    this[ele.shape]?this[ele.shape](ele):'';
-    return  this.ctx.isPointInPath(mouse.x , mouse.y);
+// 画矩形
+npCanvas.prototype.Rect=function(ele){
+    var opts={};
+    npCanvas.utils.extends(opts,ele);
+    var ctx=this.ctx;
+    ctx.rect(opts.x,opts.y,opts.width,opts.height);
+    return this;
 }
-npCanvas.prototype.draws=function(opts){
+// 旋转角度
+npCanvas.prototype.rotate=function(draws){
+    var ctx=this.ctx;
+    if(draws.rotate){
+        ctx.rotate(draws.rotate*Math.PI/180);
+    }
+    return this;
+}
+// 绘制数组路径
+npCanvas.prototype.drawShapes=function(lists){
+    if(!lists)lists=this.canvasList;
+    lists.forEach(this.drawShape,this);
+}
+npCanvas.prototype.drawShape=function(shape,is_drawColor){
+    var _this=this;
+    var ctx=this.ctx;
+    ctx.save();
+    ctx.beginPath();
+    //旋转角度
+    _this.rotate(shape.draws);
+    //绘制
+    _this[shape.shape]?_this[shape.shape](shape):'';
+    //上色
+    if(is_drawColor!==false)_this.drawColor(shape.draws);
+    ctx.closePath();
+    ctx.restore();
+    return this;
+}
+// 绘制颜色
+npCanvas.prototype.drawColor=function(opts){
     if(!opts.fill && !opts.strokeWidth && !opts.stroke){
         this.ctx.lineWidth=1;
         this.ctx.strokeStyle='#000';
@@ -124,6 +138,20 @@ npCanvas.prototype.draws=function(opts){
         }
     }
     return this;
+}
+npCanvas.prototype.clear=function(){
+    this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+}
+npCanvas.prototype.renderAll=function(){
+    this.clear();
+    this.drawShapes();
+    return this;
+}
+//isMouseInGraph
+npCanvas.prototype.isMouseInGraph=function(ele,mouse){
+    var ctx=this.ctx;
+    this.drawShape(ele,false);
+    return  ctx.isPointInPath(mouse.x , mouse.y);
 }
 npCanvas.prototype.setStyle=function(){
     var style=this.style;
@@ -147,9 +175,6 @@ npCanvas.prototype.fire=function(){
         events.forEach(function(event){
             event.apply(_this,params);
         })
-        // for(var i=0,n=events.length;i<n;i++){
-        //     events[i].apply(this,params);
-        // }
     }
     return this;
 }
@@ -475,4 +500,24 @@ npCanvas.Line.prototype.offset=function(offset){
     this.y2+=offset.y;
     return this;
 }
-window.npCanvas=npCanvas
+/**
+ * Rect 矩形
+ * @params {Object} obj {x,y,width,height}
+ */
+ npCanvas.Rect=function(obj,draws){
+     this.shape='Rect';
+     npCanvas.utils.extends(this,obj);
+     if(!npCanvas.utils.isUndefined(this.x) || !npCanvas.utils.isUndefined(this.y) || !npCanvas.utils.isUndefined(this.width) || !npCanvas.utils.isUndefined(this.height)){
+         throw new Error('Rect函数需要输入x,y,width,height参数');
+     }
+     this.width=this.width;
+     this.heigh=this.heigh;
+     this.draws=draws;
+     return this;
+ }
+ npCanvas.Rect.prototype.offset=function(offset){
+     this.x+=offset.x;
+     this.y+=offset.y;
+     return this;
+ }
+window.npCanvas=npCanvas;
