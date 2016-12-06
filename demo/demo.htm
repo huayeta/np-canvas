@@ -91,9 +91,24 @@
         height:102
     },{
         fill:'#000',
-        transform:'1,0,0,1,10,0'
+        angle:5
     })
-    canvas.add(line1,line2,circle1,circle2,circle3,rect1,rect2,rect3);
+    var text1=new npCanvas.Text({
+        x:200,
+        y:100,
+        text:'huayeta'
+    },{
+        font:'30px Arial',
+        angle:45
+    })
+    var txt=new npCanvas.Circle({
+        x:200,
+        y:100,
+        r:5
+    },{
+        fill:'#000'
+    })
+    canvas.add(line1,line2,circle1,circle2,circle3,rect1,rect3,rect2,text1,txt);
     canvas.on('object:move',function(event){
         if(event.target===circle2){
             line1.x2=circle2.x;
