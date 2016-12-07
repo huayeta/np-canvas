@@ -141,6 +141,24 @@ npCanvas.prototype.Text=function(ele){
     }
     return this;
 }
+// 二次贝塞尔曲线
+npCanvas.prototype.QuadraticCurveTo=function(ele){
+    var opts={};
+    npCanvas.utils.extends(opts,ele);
+    var ctx=this.ctx;
+    ctx.moveTo(opts.x1,opts.y1);
+    ctx.quadraticCurveTo(opts.cpx1,opts.cpy1,opts.cpx2,opts.cpy2,opts.x2,opts.y2);
+    return this;
+}
+// 三次贝塞尔曲线
+npCanvas.prototype.QuadraticCurveTo=function(ele){
+    var opts={};
+    npCanvas.utils.extends(opts,ele);
+    var ctx=this.ctx;
+    ctx.moveTo(opts.x1,opts.y1);
+    ctx.quadraticCurveTo(opts.cpx,opts.cpy,opts.x2,opts.y2);
+    return this;
+}
 // 绘制数组路径
 npCanvas.prototype.drawShapes=function(lists){
     if(!lists)lists=this.canvasList;
@@ -684,4 +702,52 @@ npCanvas.Act.prototype.offset=function(offset){
    this.y+=offset.y;
    return this;
 }
+/**
+ * QuadraticCurveTo 创建二次贝塞尔曲线
+ * @params {Object} obj {cpx,cpy,x1,y1,x2,y2}
+ */
+npCanvas.QuadraticCurveTo=function(obj,draws){
+    this.shape='QuadraticCurveTo';
+    npCanvas.utils.extends(this,obj);
+    if(!draws)draws={};
+    if(npCanvas.utils.isUndefined(this.x1,this.y1,this.x2,this.y2,this.cpx,this.cpy)){
+        throw new Error('QuadraticCurveTo函数需要输入x1,y1,x2,y2,cpx,cpy');
+    }
+    this.draws=draws;
+    return this;
+}
+npCanvas.QuadraticCurveTo.prototype.offset=function(offset){
+    this.x1+=offset.x;
+    this.x2+=offset.x;
+    this.cpx+=offset.x;
+    this.y1+=offset.y;
+    this.y2+=offset.y;
+    this.cpy+=offset.y;
+    return this;
+}
+/**
+ * BezierCurveTo 创建三次贝塞尔曲线
+ * @params {Object} obj {x1,y1,cpx1,cpy1,cpx2,cpy2,x2,y2}
+ */
+ npCanvas.BezierCurveTo=function(obj,draws){
+     this.shape='BezierCurveTo';
+     npCanvas.utils.extends(this,obj);
+     if(!draws)draws={};
+     if(npCanvas.utils.isUndefined(this.x1,this.y1,this.x2,this.y2,this.cpx1,this.cpy1,this.cpx2,this.cpy2)){
+         throw new Error('QuadraticCurveTo函数需要输入x1,y1,x2,y2,cpx1,cpy1,cpx2,cpx2');
+     }
+     this.draws=draws;
+     return this;
+ }
+ npCanvas.BezierCurveTo.prototype.offset=function(offset){
+     this.x1+=offset.x;
+     this.x2+=offset.x;
+     this.cpx1+=offset.x;
+     this.cpx2+=offset.x;
+     this.y1+=offset.y;
+     this.y2+=offset.y;
+     this.cpy1+=offset.y;
+     this.cpy2+=offset.y;
+     return this;
+ }
 window.npCanvas=npCanvas;
