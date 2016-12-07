@@ -147,16 +147,16 @@ npCanvas.prototype.QuadraticCurveTo=function(ele){
     npCanvas.utils.extends(opts,ele);
     var ctx=this.ctx;
     ctx.moveTo(opts.x1,opts.y1);
-    ctx.quadraticCurveTo(opts.cpx1,opts.cpy1,opts.cpx2,opts.cpy2,opts.x2,opts.y2);
+    ctx.quadraticCurveTo(opts.cpx,opts.cpy,opts.x2,opts.y2);
     return this;
 }
 // 三次贝塞尔曲线
-npCanvas.prototype.QuadraticCurveTo=function(ele){
+npCanvas.prototype.BezierCurveTo=function(ele){
     var opts={};
     npCanvas.utils.extends(opts,ele);
     var ctx=this.ctx;
     ctx.moveTo(opts.x1,opts.y1);
-    ctx.quadraticCurveTo(opts.cpx,opts.cpy,opts.x2,opts.y2);
+    ctx.bezierCurveTo(opts.cpx1,opts.cpy1,opts.cpx2,opts.cpy2,opts.x2,opts.y2);
     return this;
 }
 // 绘制数组路径
