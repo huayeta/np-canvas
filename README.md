@@ -14,6 +14,7 @@
  * `npCanvas.Act` @params1 {Object} {x,y,r,startAngle,endAngle[,counterclockwise]}
  * `npCanvas.QuadraticCurveTo` @params1 {Object} {x1,y1,cpx,cpy,x2,y2}
  * `npCanvas.BezierCurveTo` @params1 {Object} {x1,y1,cpx1,cpy1,cpx2,cpy2,x2,y2}
+ * `npCanvas.DrawImage` @params1 {Object} {x,y,image[,width][,height][,sx][,sy][,swidth][,sheight]}
 
 增量的函数:
  * `shape.offset(offset)` offset={x,y}

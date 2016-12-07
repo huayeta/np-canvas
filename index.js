@@ -159,6 +159,20 @@ npCanvas.prototype.BezierCurveTo=function(ele){
     ctx.bezierCurveTo(opts.cpx1,opts.cpy1,opts.cpx2,opts.cpy2,opts.x2,opts.y2);
     return this;
 }
+// 绘制图片
+npCanvas.prototype.DrawImage=function(ele){
+    var opts={};
+    npCanvas.utils.extends(opts,ele);
+    var ctx=this.ctx;
+    if(!opts.sx && !opts.width){
+        ctx.drawImage(opts.image,opts.x,opts.y);
+    }else if(!opts.sx && opts.width){
+        ctx.drawImage(opts.image,opts.x,opts.y,opts.width,opts.height);
+    }else if(opts.sx && opts.width){
+        ctx.drawImage(opts.image,opts.sx,opts.sy,opts.swidth,opts.sheight,opts.x,opts.y,opts.width,opts.height);
+    }
+    return this;
+}
 // 绘制数组路径
 npCanvas.prototype.drawShapes=function(lists){
     if(!lists)lists=this.canvasList;
@@ -280,6 +294,15 @@ npCanvas.prototype.isMouseInGraph=function(ele,mouse){
             },ele.draws);
             this.drawShape(shape,false);
             break;
+        case 'DrawImage':
+            var shape=new npCanvas.Rect({
+                x:ele.x,
+                y:ele.y,
+                width:ele.width,
+                height:ele.height
+            },ele.draws);
+            this.drawShape(shape,false);
+            break;
         default:
             this.drawShape(ele,false);
     }
@@ -344,6 +367,20 @@ npCanvas.utils.extends=function(){
         }
     }
     return this;
+}
+npCanvas.utils.formUrl=function(url){
+    if(!url)return Promise.reject(false);
+    return new Promise(function(resolve,reject){
+        var img=new Image();
+        img.src=url;
+        if(img.complete){
+            resolve(img);
+        }else{
+            img.onload=function(){
+                resolve(img);
+            }
+        }
+    })
 }
 /**
  * 动画类型
@@ -750,4 +787,25 @@ npCanvas.QuadraticCurveTo.prototype.offset=function(offset){
      this.cpy2+=offset.y;
      return this;
  }
+/**
+ * DrawImage 绘制图像
+ * @params {Object} obj {x,y,image[,width][,height][,sx][,sy][,swidth][,sheight]}
+ */
+npCanvas.DrawImage=function(obj,draws){
+    this.shape='DrawImage';
+    npCanvas.utils.extends(this,obj);
+    if(!draws)draws={};
+    if(npCanvas.utils.isUndefined(this.x,this.y,this.image)){
+        throw new Error('DrawImage函数需要输入x,y,image');
+    }
+    this.width=this.image.width;
+    this.height=this.image.height;
+    this.draws=draws;
+    return this;
+}
+npCanvas.DrawImage.prototype.offset=function(offset){
+    this.x+=offset.x;
+    this.y+=offset.y;
+    return this;
+}
 window.npCanvas=npCanvas;
