@@ -74,7 +74,8 @@
         height:100
     },{
         strokeWidth:2,
-        rotate:10
+        rotate:10,
+        radiusWidth:10
     })
     var rect2=new npCanvas.Rect({
         x:450,
@@ -110,7 +111,28 @@
     },{
         fill:'#000'
     })
-    canvas.add(line1,line2,circle1,circle2,circle3,rect1,rect3,rect2,text1,txt);
+    var act1=new npCanvas.Act({
+        x:150,
+        y:300,
+        r:10,
+        startAngle:0,
+        endAngle:1.5,
+    },{
+        strokeWidth:1,
+        stroke:'red'
+    })
+    var act2=new npCanvas.Act({
+        x:150,
+        y:300,
+        r:10,
+        startAngle:0,
+        endAngle:.5,
+    },{
+        strokeWidth:1,
+        stroke:'#000',
+        angle:30
+    })
+    canvas.add(line1,line2,circle1,circle2,circle3,rect1,rect3,rect2,text1,txt,act1,act2);
     canvas.on('object:move',function(event){
         if(event.target===circle2){
             line1.x2=circle2.x;
@@ -122,15 +144,15 @@
     });
     function animate(){
         npCanvas.utils.animate({
-            begin:200,
-            changeVal:100,
+            begin:0,
+            changeVal:360,
             mode:'Sine.easeOut',
             onChange:function(percentRun){
-                circle2.y=percentRun;
+                act2.draws.angle=percentRun;
                 canvas.renderAll();
             },
             onComplete:animate
         })
     }
-    // animate();
+    animate();
 </script>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>np-canvas-utils</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        #canvas{
+            margin-top: 10px;
+            margin-left: 10px;
+            border: 1px solid #000;
+            border-radius:
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="600" height="600"></canvas>
+</body>
+</html>
+<script type="text/javascript">
+    var canvas=document.getElementById('canvas');
+    var ctx=canvas.getContext('2d');
+    var width=100;
+    var height=100;
+    var x=20;
+    var y=20;
+    var radiusWidth=20;
+    // 圆
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(170,70,50,0,2*Math.PI);
+    ctx.strokeStyle='green';
+    ctx.stroke();
+    ctx.restore();
+    // 矩形
+    ctx.save();
+    ctx.beginPath();
+    ctx.strokeStyle='red';
+    ctx.rect(x,y,width,height);
+    ctx.stroke();
+    ctx.restore();
+    // 画圆角矩形
+    ctx.save();
+    ctx.beginPath();
+    ctx.lineJoin="round";
+    ctx.lineWidth=2;
+    ctx.moveTo(x+radiusWidth,y);
+    ctx.lineTo(x+width-radiusWidth,y);
+    ctx.arcTo(x+width,y,x+width,y+radiusWidth,radiusWidth);
+    ctx.lineTo(x+width,y+height-radiusWidth);
+    ctx.arcTo(x+width,y+height,x+width-radiusWidth,y+height,radiusWidth);
+    ctx.lineTo(x+radiusWidth,y+height);
+    ctx.arcTo(x,y+height,x,y+height-radiusWidth,radiusWidth);
+    ctx.lineTo(x,y+radiusWidth);
+    ctx.arcTo(x,y,x+radiusWidth,y,radiusWidth);
+    ctx.stroke();
+    ctx.restore();
+    // ctx.fill();
+</script>

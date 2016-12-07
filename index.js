@@ -73,6 +73,13 @@ npCanvas.prototype.Circle=function(ele){
     this.ctx.arc(opts.x,opts.y,opts.r,0,2*Math.PI);
     return this;
 }
+// 画弧线
+npCanvas.prototype.Act=function(ele){
+    var opts={};
+    npCanvas.utils.extends(opts,ele);
+    this.ctx.arc(opts.x,opts.y,opts.r,opts.startAngle,opts.endAngle*Math.PI,opts.counterclockwise);
+    return this;
+}
 // 画线
 npCanvas.prototype.Line=function(ele){
     var opts={};
@@ -87,7 +94,25 @@ npCanvas.prototype.Rect=function(ele){
     var opts={};
     npCanvas.utils.extends(opts,ele);
     var ctx=this.ctx;
-    ctx.rect(opts.x,opts.y,opts.width,opts.height);
+    if(opts.draws.radiusWidth){
+        var x=opts.x;
+        var y=opts.y;
+        var width=opts.width;
+        var height=opts.height;
+        var radiusWidth=opts.draws.radiusWidth;
+        ctx.lineJoin="round";
+        ctx.moveTo(x+radiusWidth,y);
+        ctx.lineTo(x+width-radiusWidth,y);
+        ctx.arcTo(x+width,y,x+width,y+radiusWidth,radiusWidth);
+        ctx.lineTo(x+width,y+height-radiusWidth);
+        ctx.arcTo(x+width,y+height,x+width-radiusWidth,y+height,radiusWidth);
+        ctx.lineTo(x+radiusWidth,y+height);
+        ctx.arcTo(x,y+height,x,y+height-radiusWidth,radiusWidth);
+        ctx.lineTo(x,y+radiusWidth);
+        ctx.arcTo(x,y,x+radiusWidth,y,radiusWidth);
+    }else{
+        ctx.rect(opts.x,opts.y,opts.width,opts.height);
+    }
     return this;
 }
 // 画text
@@ -135,7 +160,7 @@ npCanvas.prototype.drawShape=function(shape,is_drawColor){
     this[shape.shape]?this[shape.shape](shape):'';
     //上色
     if(is_drawColor!==false)this.drawColor(shape.draws);
-    ctx.closePath();
+    // ctx.closePath();
     ctx.restore();
     return this;
 }
@@ -183,16 +208,18 @@ npCanvas.prototype.angle=function(shape){
     var ctx=this.ctx;
     var angle=shape.draws.angle
     if(angle){
-        switch (shape.shape) {
-            case 'Rect1':
-                ctx.translate(shape.x+shape.width/2,shape.y+shape.height/2);
-                ctx.rotate(angle*Math.PI/180);
-                ctx.translate(-(shape.x+shape.width/2),-(shape.y+shape.height/2));
-                break;
-            default:
-                ctx.translate(shape.x+shape.width/2,shape.y+shape.height/2);
-                ctx.rotate(angle*Math.PI/180);
-                ctx.translate(-(shape.x+shape.width/2),-(shape.y+shape.height/2));
+        if(shape.shape=='Act' || shape.shape=='Circle'){
+            ctx.translate(shape.x,shape.y);
+            ctx.rotate(angle*Math.PI/180);
+            ctx.translate(-(shape.x),-(shape.y));
+        }else if(shape.shape=='Line'){
+            ctx.translate(shape.x1+shape.width/2,shape.y1+shape.height/2);
+            ctx.rotate(angle*Math.PI/180);
+            ctx.translate(-(shape.x1+shape.width/2),-(shape.y1+shape.height/2));
+        }else{
+            ctx.translate(shape.x+shape.width/2,shape.y+shape.height/2);
+            ctx.rotate(angle*Math.PI/180);
+            ctx.translate(-(shape.x+shape.width/2),-(shape.y+shape.height/2));
         }
     }
     return this;
@@ -281,8 +308,13 @@ npCanvas.prototype.unbind=function(type,cb){
 }
 npCanvas.utils={};
 npCanvas.utils.noop=function(){};
-npCanvas.utils.isUndefined=function(val){
-    return val!==undefined;
+npCanvas.utils.isUndefined=function(){
+    var args=Array.prototype.slice.apply(arguments);
+    for(var i=0,n=args.length;i<n;i++){
+        var val=args[i];
+        if(val===undefined)return true;
+    }
+    return false;
 }
 npCanvas.utils.extends=function(){
     var args=Array.prototype.slice.apply(arguments,[1]);
@@ -555,7 +587,7 @@ npCanvas.Circle=function(obj,draws){
     this.shape='Circle';
     npCanvas.utils.extends(this,obj);
      if(!draws)draws={};
-    if(!npCanvas.utils.isUndefined(this.x) || !npCanvas.utils.isUndefined(this.y) || !npCanvas.utils.isUndefined(this.r)){
+    if(npCanvas.utils.isUndefined(this.x,this.y,this.r)){
         throw new Error('Circle函数需要输入x,y,r参数');
     }
     this.width=2*this.r;
@@ -576,7 +608,7 @@ npCanvas.Line=function(obj,draws){
     this.shape='Line';
     npCanvas.utils.extends(this,obj);
      if(!draws)draws={};
-    if(!npCanvas.utils.isUndefined(this.x1) || !npCanvas.utils.isUndefined(this.y1) || !npCanvas.utils.isUndefined(this.x2) || !npCanvas.utils.isUndefined(this.y2)){
+    if(npCanvas.utils.isUndefined(this.x1,this.y1,this.x2,this.y2)){
         throw new Error('Line函数需要输入x1、y1、x2、y2参数');
     }
     this.width=Math.abs(this.x1-this.x2);
@@ -593,13 +625,13 @@ npCanvas.Line.prototype.offset=function(offset){
 }
 /**
  * Rect 矩形
- * @params {Object} obj {x,y,width,height}
+ * @params1 {Object} obj {x,y,width,height}
  */
  npCanvas.Rect=function(obj,draws){
      this.shape='Rect';
      npCanvas.utils.extends(this,obj);
       if(!draws)draws={};
-     if(!npCanvas.utils.isUndefined(this.x) || !npCanvas.utils.isUndefined(this.y) || !npCanvas.utils.isUndefined(this.width) || !npCanvas.utils.isUndefined(this.height)){
+     if(npCanvas.utils.isUndefined(this.x,this.y,this.width,this.height)){
          throw new Error('Rect函数需要输入x,y,width,height参数');
      }
      this.width=this.width;
@@ -620,7 +652,7 @@ npCanvas.Line.prototype.offset=function(offset){
       this.shape='Text';
       npCanvas.utils.extends(this,obj);
       if(!draws)draws={};
-      if(!npCanvas.utils.isUndefined(this.x) || !npCanvas.utils.isUndefined(this.y) || !npCanvas.utils.isUndefined(this.text)){
+      if(npCanvas.utils.isUndefined(this.x,this.y,this.text)){
           throw new Error('Text函数需要输入x,y,text');
       }
       this.draws=draws;
@@ -631,4 +663,25 @@ npCanvas.Line.prototype.offset=function(offset){
       this.y+=offset.y;
       return this;
   }
+  /**
+   * Arc 创建弧线
+   * @params {Object} obj {x,y,r,startAngle,endAngle,counterclockwise}
+   */
+npCanvas.Act=function(obj,draws){
+   this.shape='Act';
+   npCanvas.utils.extends(this,obj);
+   if(!draws)draws={};
+   if(npCanvas.utils.isUndefined(this.x,this.y,this.r,this.startAngle,this.endAngle)){
+       throw new Error('Arc函数需要输入x,y,r,startAngle,endAngle');
+   }
+   if(this.counterclockwise===undefined)this.counterclockwise=false;// 顺时针
+   this.width=this.height=this.r*2;
+   this.draws=draws;
+   return this;
+}
+npCanvas.Act.prototype.offset=function(offset){
+   this.x+=offset.x;
+   this.y+=offset.y;
+   return this;
+}
 window.npCanvas=npCanvas;
