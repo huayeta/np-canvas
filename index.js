@@ -3,17 +3,18 @@
  * npCanvas
  */
 
-var npCanvas=function(id,obj,style){
+var npCanvas=function(id,obj){
     this.id=id;
+    if(obj)npCanvas.utils.extends(this,obj);
     this.canvas=document.getElementById(this.id);
-    this.style=style;
+    //设置样式
     this.setStyle();
     this.ctx=this.canvas.getContext('2d');
+    //得到canvas的位置
     this.canvasPos = this.canvas.getBoundingClientRect();
     this.canvasList=[];
     this.canvasList_tmp=[];
     this._events={};
-    if(obj)npCanvas.utils.extends(this,obj);
     this.drage();
     return this;
 }
