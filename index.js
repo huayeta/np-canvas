@@ -14,7 +14,6 @@ var npCanvas=function(id,obj){
     this.canvasPos = this.canvas.getBoundingClientRect();
     this.canvasList=[];
     this.canvasList_tmp=[];
-    this._events={};
     this.drage();
     return this;
 }
@@ -334,35 +333,25 @@ npCanvas.prototype.setStyle=function(){
         }
     }
 }
-npCanvas.prototype.on=function(type,cb){
-    if(!this._events[type])this._events[type]=[];
-    this._events[type].push(cb);
+npCanvas.prototype.on=function(event,cb){
+    this._events = this._events || {};
+	this._events[event] = this._events[event]	|| [];
+	this._events[event].push(cb);
     return this;
 }
-npCanvas.prototype.fire=function(){
-    var _this=this;
-    var args=Array.prototype.slice.call(arguments);
-    var events=this._events[args[0]];
-    var params=args.slice(1);
-    if(events && events.length>0){
-        events.forEach(function(event){
-            event.apply(_this,params);
-        })
-    }
+npCanvas.prototype.fire=function(event /* , args... */){
+    this._events = this._events || {};
+    var args=Array.prototype.slice.call(arguments, 1);
+	if( event in this._events === false  )	return;
+	for(var i = 0,n=this._events[event].length; i <n ; i++){
+		this._events[event][i].apply(this, args);
+	}
     return this;
 }
-npCanvas.prototype.unbind=function(type,cb){
-    if(!type)return this._events={};
-    var events=this._events[type];
-    if(events && events.length>0){
-        for(var i=0,n=events.length;i<n;i++){
-            if(events[i]===cb){
-                events.splice(i,-1);
-                break;
-            }
-        }
-    }
-    this._events[type]=events;
+npCanvas.prototype.unbind=function(event,cb){
+    this._events = this._events || {};
+	if( event in this._events === false  )	return;
+	this._events[event].splice(this._events[event].indexOf(cb), 1);
     return this;
 }
 npCanvas.utils={};

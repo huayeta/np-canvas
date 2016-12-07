@@ -24,3 +24,9 @@
 
 事件
  *  `this.on('object:move')` 当元素运动的时候,参数{originEvent(原生event对象),target(目标形状),x,y}
+
+## 运行demo
+
+    npm install
+    npm run server
+    访问:http://127.0.0.1:8080/demo/demo.htm
