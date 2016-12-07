@@ -3,8 +3,7 @@
  * npCanvas
  */
 
-var npCanvas=function(id,style){
-    var _this=this;
+var npCanvas=function(id,obj,style){
     this.id=id;
     this.canvas=document.getElementById(this.id);
     this.style=style;
@@ -14,13 +13,19 @@ var npCanvas=function(id,style){
     this.canvasList=[];
     this.canvasList_tmp=[];
     this._events={};
+    if(obj)npCanvas.utils.extends(this,obj);
+    this.drage();
+    return this;
+}
+npCanvas.prototype.drage=function(){
+    var _this=this;
     this.canvas.addEventListener('mousedown',function(e){
         var mouse={
             x:e.clientX-_this.canvasPos.left,
             y:e.clientY-_this.canvasPos.top
         };
         _this.canvasList.forEach(function(shape){
-            if(_this.isMouseInGraph(shape,mouse)){
+            if(_this.isMouseInGraph(shape,mouse) && (_this.is_drage || shape.draws.is_drage)){
                 _this.canvasList_tmp.push(shape);
                 var mousemove=function(e){
                     if(shape===_this.canvasList_tmp[_this.canvasList_tmp.length-1]){
@@ -33,14 +38,16 @@ var npCanvas=function(id,style){
                             y:mouse_tmp.y-mouse.y
                         };
                         mouse=mouse_tmp;
-                        shape.offset(offset);
-                        _this.fire('object:move',{
-                            originEvent:e,
-                            target:shape,
-                            x:offset.x,
-                            y:offset.y
-                        });
-                        _this.renderAll();
+                        if(shape.offset){
+                            shape.offset(offset);
+                            _this.fire('object:move',{
+                                originEvent:e,
+                                target:shape,
+                                x:offset.x,
+                                y:offset.y
+                            });
+                            _this.renderAll();
+                        }
                     }
                 }
                 var mouseup=function(e){

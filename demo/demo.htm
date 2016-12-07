@@ -26,7 +26,9 @@
 </html>
 <script src="/index.js" charset="utf-8"></script>
 <script type="text/javascript">
-    var canvas=new npCanvas('canvas');
+    var canvas=new npCanvas('canvas',{
+        is_drage:false
+    });
     var line1=new npCanvas.Line({
         x1:100,
         y1:100,
@@ -146,7 +148,8 @@
             x:0,
             y:400
         },{
-            alpha:.5
+            alpha:1,
+            is_drage:true
         });
         canvas.add(image1);
     })
