@@ -182,6 +182,8 @@ npCanvas.prototype.drawShape=function(shape,is_drawColor){
     var ctx=this.ctx;
     ctx.save();
     ctx.beginPath();
+    // 设置alpha
+    this.alpha(shape.draws);
     // 中心点
     this.translate(shape.draws);
     //旋转角度
@@ -194,6 +196,14 @@ npCanvas.prototype.drawShape=function(shape,is_drawColor){
     if(is_drawColor!==false)this.drawColor(shape.draws);
     // ctx.closePath();
     ctx.restore();
+    return this;
+}
+// 设置alpha
+npCanvas.prototype.alpha=function(draws){
+    var ctx=this.ctx;
+    if(!npCanvas.utils.isUndefined(draws.alpha)){
+        ctx.globalAlpha=draws.alpha;
+    }
     return this;
 }
 // 绘制颜色

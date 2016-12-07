@@ -6,7 +6,7 @@
  * `canvas.clear()` 清空canvas
  * `canvas.animate()` 动画，@params {Object} {begin,changeVal,duration,mode,callback}
 
-形状：@params2 {Object} draws {fill,stoke,strokeWidth,rotate,angle,transform(1,0,0,1,0,0)}
+形状：@params2 {Object} draws {fill,stoke,strokeWidth,rotate,angle,transform(1,0,0,1,0,0),alpha}
  * `npCanvas.Circle` @params1 {Object} {x,y,r}
  * `npCanvas.Line` @params1 {Object} {x1,y1,x2,y2}
  * `npCanvas.Rect` @params1 {Object} {x,y,width,height} @params2 {Objst} {radiusWidth}
