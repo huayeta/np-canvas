@@ -5,341 +5,34 @@
 
 var npCanvas=function(id,obj){
     this.id=id;
-    if(obj)npCanvas.utils.extends(this,obj);
+    if(obj)npCanvas.Utils.extends(this,obj);
     this.canvas=document.getElementById(this.id);
     //设置样式
     this.setStyle();
     this.ctx=this.canvas.getContext('2d');
     //得到canvas的位置
     this.canvasPos = this.canvas.getBoundingClientRect();
+    // 所有形状的列表
     this.canvasList=[];
+    // 形状的临时列表
     this.canvasList_tmp=[];
+    // 拖拽
     this.drage();
     return this;
 }
-npCanvas.prototype.drage=function(){
-    var _this=this;
-    this.canvas.addEventListener('mousedown',function(e){
-        var mouse={
-            x:e.clientX-_this.canvasPos.left,
-            y:e.clientY-_this.canvasPos.top
-        };
-        _this.canvasList.forEach(function(shape){
-            if(_this.isMouseInGraph(shape,mouse) && (_this.is_drage || shape.draws.is_drage)){
-                _this.canvasList_tmp.push(shape);
-                var mousemove=function(e){
-                    if(shape===_this.canvasList_tmp[_this.canvasList_tmp.length-1]){
-                        var mouse_tmp={
-                            x:e.clientX-_this.canvasPos.left,
-                            y:e.clientY-_this.canvasPos.top
-                        };
-                        var offset={
-                            x:mouse_tmp.x-mouse.x,
-                            y:mouse_tmp.y-mouse.y
-                        };
-                        mouse=mouse_tmp;
-                        if(shape.offset){
-                            shape.offset(offset);
-                            _this.fire('object:move',{
-                                originEvent:e,
-                                target:shape,
-                                x:offset.x,
-                                y:offset.y
-                            });
-                            _this.renderAll();
-                        }
-                    }
-                }
-                var mouseup=function(e){
-                    _this.canvasList_tmp=[];
-                    mouse=null;
-                    shape=null;
-                    _this.canvas.removeEventListener('mousemove',mousemove,false);
-                    _this.canvas.removeEventListener('mouseup',mouseup,false);
-                    mousemove=null;
-                    mouseup=null;
-                }
-                _this.canvas.addEventListener('mousemove',mousemove,false);
-                _this.canvas.addEventListener('mouseup',mouseup,false);
-            }
-        })
-        e.preventDefault();
-    },false)
+/**
+ * Events 事件发射器
+ */
+npCanvas.Events=function(){
     return this;
 }
-npCanvas.prototype.add=function(){
-    var _this=this;
-    var args=Array.prototype.slice.apply(arguments);
-    this.canvasList=this.canvasList.concat(args);
-    this.drawShapes(args);
-}
-// 画圆
-npCanvas.prototype.Circle=function(ele){
-    var opts={};
-    npCanvas.utils.extends(opts,ele);
-    this.ctx.arc(opts.x,opts.y,opts.r,0,2*Math.PI);
-    return this;
-}
-// 画弧线
-npCanvas.prototype.Act=function(ele){
-    var opts={};
-    npCanvas.utils.extends(opts,ele);
-    this.ctx.arc(opts.x,opts.y,opts.r,opts.startAngle,opts.endAngle*Math.PI,opts.counterclockwise);
-    return this;
-}
-// 画线
-npCanvas.prototype.Line=function(ele){
-    var opts={};
-    npCanvas.utils.extends(opts,ele);
-    var ctx=this.ctx;
-    ctx.moveTo(opts.x1,opts.y1);
-    ctx.lineTo(opts.x2,opts.y2);
-    return this;
-}
-// 画矩形
-npCanvas.prototype.Rect=function(ele){
-    var opts={};
-    npCanvas.utils.extends(opts,ele);
-    var ctx=this.ctx;
-    if(opts.draws.radiusWidth){
-        var x=opts.x;
-        var y=opts.y;
-        var width=opts.width;
-        var height=opts.height;
-        var radiusWidth=opts.draws.radiusWidth;
-        ctx.lineJoin="round";
-        ctx.moveTo(x+radiusWidth,y);
-        ctx.lineTo(x+width-radiusWidth,y);
-        ctx.arcTo(x+width,y,x+width,y+radiusWidth,radiusWidth);
-        ctx.lineTo(x+width,y+height-radiusWidth);
-        ctx.arcTo(x+width,y+height,x+width-radiusWidth,y+height,radiusWidth);
-        ctx.lineTo(x+radiusWidth,y+height);
-        ctx.arcTo(x,y+height,x,y+height-radiusWidth,radiusWidth);
-        ctx.lineTo(x,y+radiusWidth);
-        ctx.arcTo(x,y,x+radiusWidth,y,radiusWidth);
-    }else{
-        ctx.rect(opts.x,opts.y,opts.width,opts.height);
-    }
-    return this;
-}
-// 画text
-npCanvas.prototype.Text=function(ele){
-    var opts={};
-    npCanvas.utils.extends(opts,ele);
-    var ctx=this.ctx;
-    ele.height=12;
-    if(opts.draws.font){
-        ctx.font=opts.draws.font;
-        var fontSize=parseInt(ctx.font.split(' ')[0]);
-        if(fontSize)ele.height=fontSize;
-    }
-    if(opts.draws.textAlign)ctx.textAlign=opts.draws.textAlign;
-    if(opts.draws.textBaseline){
-        ctx.textBaseline=opts.draws.textBaseline;
-    }else{
-        ele.textBaseline='alphabetic';
-    }
-    ele.width=ctx.measureText(opts.text).width;
-    this.drawColor(ele.draws);
-    if(ele.draws.stroke){
-        ctx.strokeText(opts.text,opts.x,opts.y);
-    }else{
-        ctx.fillText(opts.text,opts.x,opts.y);
-    }
-    return this;
-}
-// 二次贝塞尔曲线
-npCanvas.prototype.QuadraticCurveTo=function(ele){
-    var opts={};
-    npCanvas.utils.extends(opts,ele);
-    var ctx=this.ctx;
-    ctx.moveTo(opts.x1,opts.y1);
-    ctx.quadraticCurveTo(opts.cpx,opts.cpy,opts.x2,opts.y2);
-    return this;
-}
-// 三次贝塞尔曲线
-npCanvas.prototype.BezierCurveTo=function(ele){
-    var opts={};
-    npCanvas.utils.extends(opts,ele);
-    var ctx=this.ctx;
-    ctx.moveTo(opts.x1,opts.y1);
-    ctx.bezierCurveTo(opts.cpx1,opts.cpy1,opts.cpx2,opts.cpy2,opts.x2,opts.y2);
-    return this;
-}
-// 绘制图片
-npCanvas.prototype.DrawImage=function(ele){
-    var opts={};
-    npCanvas.utils.extends(opts,ele);
-    var ctx=this.ctx;
-    if(!opts.sx && !opts.width){
-        ctx.drawImage(opts.image,opts.x,opts.y);
-    }else if(!opts.sx && opts.width){
-        ctx.drawImage(opts.image,opts.x,opts.y,opts.width,opts.height);
-    }else if(opts.sx && opts.width){
-        ctx.drawImage(opts.image,opts.sx,opts.sy,opts.swidth,opts.sheight,opts.x,opts.y,opts.width,opts.height);
-    }
-    return this;
-}
-// 绘制数组路径
-npCanvas.prototype.drawShapes=function(lists){
-    if(!lists)lists=this.canvasList;
-    lists.forEach(this.drawShape,this);
-}
-npCanvas.prototype.drawShape=function(shape,is_drawColor){
-    var ctx=this.ctx;
-    ctx.save();
-    ctx.beginPath();
-    // 设置alpha
-    this.alpha(shape.draws);
-    // 中心点
-    this.translate(shape.draws);
-    //旋转角度
-    this.rotate(shape);
-    // transform
-    this.transform(shape.draws);
-    //绘制
-    this[shape.shape]?this[shape.shape](shape):'';
-    //上色
-    if(is_drawColor!==false)this.drawColor(shape.draws);
-    // ctx.closePath();
-    ctx.restore();
-    return this;
-}
-// 设置alpha
-npCanvas.prototype.alpha=function(draws){
-    var ctx=this.ctx;
-    if(!npCanvas.utils.isUndefined(draws.alpha)){
-        ctx.globalAlpha=draws.alpha;
-    }
-    return this;
-}
-// 绘制颜色
-npCanvas.prototype.drawColor=function(opts){
-    if(!opts.fill && !opts.strokeWidth && !opts.stroke){
-        this.ctx.lineWidth=1;
-        this.ctx.strokeStyle='#000';
-        this.ctx.stroke();
-    }else{
-        if(opts.strokeWidth || opts.stroke){
-            if(!opts.strokeWidth)opts.strokeWidth=1;
-            if(!opts.stroke)opts.stroke='#000';
-            this.ctx.lineWidth=opts.strokeWidth;
-            this.ctx.strokeStyle=opts.stroke;
-            this.ctx.stroke();
-        }
-        if(opts.fill){
-            this.ctx.fillStyle=opts.fill;
-            this.ctx.fill();
-        }
-    }
-    return this;
-}
-// 中心点移动
-npCanvas.prototype.translate=function(draws){
-    var ctx=this.ctx;
-    if(draws.translate){
-        ctx.translate.apply(ctx,draws.translate.split(','));
-    }
-    return this;
-}
-// 旋转角度
-npCanvas.prototype.rotate=function(shape){
-    var ctx=this.ctx;
-    if(shape.draws.angle){
-        this.angle(shape);
-    }else if(shape.draws.rotate){
-        ctx.rotate(shape.draws.rotate*Math.PI/180);
-    }
-    return this;
-}
-// angle
-npCanvas.prototype.angle=function(shape){
-    var ctx=this.ctx;
-    var angle=shape.draws.angle
-    if(angle){
-        if(shape.shape=='Act' || shape.shape=='Circle'){
-            ctx.translate(shape.x,shape.y);
-            ctx.rotate(angle*Math.PI/180);
-            ctx.translate(-(shape.x),-(shape.y));
-        }else if(shape.shape=='Line'){
-            ctx.translate(shape.x1+shape.width/2,shape.y1+shape.height/2);
-            ctx.rotate(angle*Math.PI/180);
-            ctx.translate(-(shape.x1+shape.width/2),-(shape.y1+shape.height/2));
-        }else{
-            ctx.translate(shape.x+shape.width/2,shape.y+shape.height/2);
-            ctx.rotate(angle*Math.PI/180);
-            ctx.translate(-(shape.x+shape.width/2),-(shape.y+shape.height/2));
-        }
-    }
-    return this;
-}
-// transform
-npCanvas.prototype.transform=function(draws){
-    var ctx=this.ctx;
-    if(draws.transform){
-        ctx.transform.apply(ctx,draws.transform.split(','));
-    }
-    return this;
-}
-npCanvas.prototype.clear=function(){
-    this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
-}
-npCanvas.prototype.renderAll=function(){
-    this.clear();
-    this.drawShapes();
-    return this;
-}
-//isMouseInGraph
-npCanvas.prototype.isMouseInGraph=function(ele,mouse){
-    var ctx=this.ctx;
-    switch (ele.shape) {
-        case 'Text':
-            var textBaseline=ele.draws.textBaseline;
-            var y=ele.y;
-            if(textBaseline=='top' || textBaseline=='hanging'){
-                y=ele.y;
-            }else if(textBaseline=='bottom' || textBaseline=='alphabetic'){
-                y=ele.y-ele.height
-            }else if(textBaseline=='middle'){
-                y=ele.y-ele.height/2
-            }
-            var shape=new npCanvas.Rect({
-                x:ele.x,
-                y:y,
-                width:ele.width,
-                height:ele.height
-            },ele.draws);
-            this.drawShape(shape,false);
-            break;
-        case 'DrawImage':
-            var shape=new npCanvas.Rect({
-                x:ele.x,
-                y:ele.y,
-                width:ele.width,
-                height:ele.height
-            },ele.draws);
-            this.drawShape(shape,false);
-            break;
-        default:
-            this.drawShape(ele,false);
-    }
-    return  ctx.isPointInPath(mouse.x , mouse.y);
-}
-npCanvas.prototype.setStyle=function(){
-    var style=this.style;
-    if(style){
-        for(var i in style){
-            this.canvas.style[i]=style[i];
-        }
-    }
-}
-npCanvas.prototype.on=function(event,cb){
+npCanvas.Events.prototype.on=function(event,cb){
     this._events = this._events || {};
 	this._events[event] = this._events[event]	|| [];
 	this._events[event].push(cb);
     return this;
 }
-npCanvas.prototype.fire=function(event /* , args... */){
+npCanvas.Events.prototype.fire=function(event /* , args... */){
     this._events = this._events || {};
     var args=Array.prototype.slice.call(arguments, 1);
 	if( event in this._events === false  )	return;
@@ -348,15 +41,18 @@ npCanvas.prototype.fire=function(event /* , args... */){
 	}
     return this;
 }
-npCanvas.prototype.unbind=function(event,cb){
+npCanvas.Events.prototype.off=function(event,cb){
     this._events = this._events || {};
 	if( event in this._events === false  )	return;
 	this._events[event].splice(this._events[event].indexOf(cb), 1);
     return this;
 }
-npCanvas.utils={};
-npCanvas.utils.noop=function(){};
-npCanvas.utils.isUndefined=function(){
+/**
+ * Utils 工具函数
+ */
+npCanvas.Utils={};
+npCanvas.Utils.noop=function(){};
+npCanvas.Utils.isUndefined=function(){
     var args=Array.prototype.slice.apply(arguments);
     for(var i=0,n=args.length;i<n;i++){
         var val=args[i];
@@ -364,7 +60,7 @@ npCanvas.utils.isUndefined=function(){
     }
     return false;
 }
-npCanvas.utils.extends=function(){
+npCanvas.Utils.extends=function(){
     var args=Array.prototype.slice.apply(arguments,[1]);
     var obj=arguments[0];
     for(var i=0,n=args.length;i<n;i++){
@@ -375,7 +71,15 @@ npCanvas.utils.extends=function(){
     }
     return this;
 }
-npCanvas.utils.formUrl=function(url){
+npCanvas.Utils.inherit=function(){
+    var args=Array.prototype.slice.call(arguments);
+    var parent=args[args.length-1];
+    var objs=args.slice(0,-1);
+    for(var i=0,n=objs.length;i<n;i++){
+        npCanvas.Utils.extends(objs[i].prototype,parent.prototype);
+    }
+}
+npCanvas.Utils.formUrl=function(url){
     if(!url)return Promise.reject(false);
     return new Promise(function(resolve,reject){
         var img=new Image();
@@ -397,7 +101,7 @@ npCanvas.utils.formUrl=function(url){
  * d: duration（持续时间）。
  * you can visit 'http://easings.net/zh-cn' to get effect
  */
-npCanvas.utils.moveMode=function(type){
+npCanvas.Utils.moveMode=function(type){
     var Tween = {
         Linear: function(t, b, c, d) { return c*t/d + b; },
         Quad: {
@@ -576,7 +280,7 @@ npCanvas.utils.moveMode=function(type){
         return Tween;
     }
 }
-npCanvas.utils.requestAnimationFrame=(function(){
+npCanvas.Utils.requestAnimationFrame=(function(){
     var lastTime = 0;
     var vendors = ['webkit', 'moz'];
     var requestAnimationFrame=window.requestAnimationFrame;
@@ -597,7 +301,7 @@ npCanvas.utils.requestAnimationFrame=(function(){
     }
     return requestAnimationFrame.bind(window);
 })();
-npCanvas.utils.cancelAnimationFrame=(function(){
+npCanvas.Utils.cancelAnimationFrame=(function(){
     var vendors = ['webkit', 'moz'];
     var cancelAnimationFrame=window.cancelAnimationFrame;
     for(var x = 0; x < vendors.length && !requestAnimationFrame; ++x) {
@@ -610,18 +314,18 @@ npCanvas.utils.cancelAnimationFrame=(function(){
     }
     return cancelAnimationFrame.bind(window);
 })();
-npCanvas.utils.animate=function(obj){
+npCanvas.Utils.animate=function(obj){
     var opts={
-        onChange:npCanvas.utils.noop,
-        onComplete:npCanvas.utils.noop,
+        onChange:npCanvas.Utils.noop,
+        onComplete:npCanvas.Utils.noop,
         duration:50,
         mode:'Linear',
         begin:0,
         changeVal:10
     };
-    npCanvas.utils.extends(opts,obj);
+    npCanvas.Utils.extends(opts,obj);
     var arr_mode=opts.mode.split('.');
-    var modeModeFn=npCanvas.utils.moveMode(opts.mode);
+    var modeModeFn=npCanvas.Utils.moveMode(opts.mode);
     var start=0;
     var _run=function(){
         start++;
@@ -634,11 +338,352 @@ npCanvas.utils.animate=function(obj){
             modeModeFn=null;
             _run=null;
         }else{
-            npCanvas.utils.requestAnimationFrame(_run);
+            npCanvas.Utils.requestAnimationFrame(_run);
         }
     };
     _run();
 }
+
+npCanvas.Utils.inherit(npCanvas,npCanvas.Events);
+npCanvas.prototype.drage=function(){
+    var _this=this;
+    this.canvas.addEventListener('mousedown',function(e){
+        var mouse={
+            x:e.clientX-_this.canvasPos.left,
+            y:e.clientY-_this.canvasPos.top
+        };
+        _this.canvasList.forEach(function(shape){
+            if(_this.isMouseInGraph(shape,mouse) && (_this.is_drage || shape.draws.is_drage)){
+                _this.canvasList_tmp.push(shape);
+                var mousemove=function(e){
+                    if(shape===_this.canvasList_tmp[_this.canvasList_tmp.length-1]){
+                        var mouse_tmp={
+                            x:e.clientX-_this.canvasPos.left,
+                            y:e.clientY-_this.canvasPos.top
+                        };
+                        var offset={
+                            x:mouse_tmp.x-mouse.x,
+                            y:mouse_tmp.y-mouse.y
+                        };
+                        mouse=mouse_tmp;
+                        if(shape.offset){
+                            shape.offset(offset);
+                            _this.fire('object:move',{
+                                originEvent:e,
+                                target:shape,
+                                x:offset.x,
+                                y:offset.y
+                            });
+                            shape.fire('shape:move',{
+                                originEvent:e,
+                                target:shape,
+                                x:offset.x,
+                                y:offset.y
+                            })
+                            _this.renderAll();
+                        }
+                    }
+                }
+                var mouseup=function(e){
+                    _this.canvasList_tmp=[];
+                    mouse=null;
+                    shape=null;
+                    _this.canvas.removeEventListener('mousemove',mousemove,false);
+                    _this.canvas.removeEventListener('mouseup',mouseup,false);
+                    mousemove=null;
+                    mouseup=null;
+                }
+                _this.canvas.addEventListener('mousemove',mousemove,false);
+                _this.canvas.addEventListener('mouseup',mouseup,false);
+            }
+        })
+        e.preventDefault();
+    },false)
+    return this;
+}
+npCanvas.prototype.add=function(){
+    var _this=this;
+    var args=Array.prototype.slice.apply(arguments);
+    this.canvasList=this.canvasList.concat(args);
+    this.drawShapes(args);
+}
+// 画圆
+npCanvas.prototype.Circle=function(ele){
+    var opts={};
+    npCanvas.Utils.extends(opts,ele);
+    this.ctx.arc(opts.x,opts.y,opts.r,0,2*Math.PI);
+    return this;
+}
+// 画弧线
+npCanvas.prototype.Act=function(ele){
+    var opts={};
+    npCanvas.Utils.extends(opts,ele);
+    this.ctx.arc(opts.x,opts.y,opts.r,opts.startAngle,opts.endAngle*Math.PI,opts.counterclockwise);
+    return this;
+}
+// 画线
+npCanvas.prototype.Line=function(ele){
+    var opts={};
+    npCanvas.Utils.extends(opts,ele);
+    var ctx=this.ctx;
+    ctx.moveTo(opts.x1,opts.y1);
+    ctx.lineTo(opts.x2,opts.y2);
+    return this;
+}
+// 画矩形
+npCanvas.prototype.Rect=function(ele){
+    var opts={};
+    npCanvas.Utils.extends(opts,ele);
+    var ctx=this.ctx;
+    if(opts.draws.radiusWidth){
+        var x=opts.x;
+        var y=opts.y;
+        var width=opts.width;
+        var height=opts.height;
+        var radiusWidth=opts.draws.radiusWidth;
+        ctx.lineJoin="round";
+        ctx.moveTo(x+radiusWidth,y);
+        ctx.lineTo(x+width-radiusWidth,y);
+        ctx.arcTo(x+width,y,x+width,y+radiusWidth,radiusWidth);
+        ctx.lineTo(x+width,y+height-radiusWidth);
+        ctx.arcTo(x+width,y+height,x+width-radiusWidth,y+height,radiusWidth);
+        ctx.lineTo(x+radiusWidth,y+height);
+        ctx.arcTo(x,y+height,x,y+height-radiusWidth,radiusWidth);
+        ctx.lineTo(x,y+radiusWidth);
+        ctx.arcTo(x,y,x+radiusWidth,y,radiusWidth);
+    }else{
+        ctx.rect(opts.x,opts.y,opts.width,opts.height);
+    }
+    return this;
+}
+// 画text
+npCanvas.prototype.Text=function(ele){
+    var opts={};
+    npCanvas.Utils.extends(opts,ele);
+    var ctx=this.ctx;
+    ele.height=12;
+    if(opts.draws.font){
+        ctx.font=opts.draws.font;
+        var fontSize=parseInt(ctx.font.split(' ')[0]);
+        if(fontSize)ele.height=fontSize;
+    }
+    if(opts.draws.textAlign)ctx.textAlign=opts.draws.textAlign;
+    if(opts.draws.textBaseline){
+        ctx.textBaseline=opts.draws.textBaseline;
+    }else{
+        ele.textBaseline='alphabetic';
+    }
+    ele.width=ctx.measureText(opts.text).width;
+    this.drawColor(ele.draws);
+    if(ele.draws.stroke){
+        ctx.strokeText(opts.text,opts.x,opts.y);
+    }else{
+        ctx.fillText(opts.text,opts.x,opts.y);
+    }
+    return this;
+}
+// 二次贝塞尔曲线
+npCanvas.prototype.QuadraticCurveTo=function(ele){
+    var opts={};
+    npCanvas.Utils.extends(opts,ele);
+    var ctx=this.ctx;
+    ctx.moveTo(opts.x1,opts.y1);
+    ctx.quadraticCurveTo(opts.cpx,opts.cpy,opts.x2,opts.y2);
+    return this;
+}
+// 三次贝塞尔曲线
+npCanvas.prototype.BezierCurveTo=function(ele){
+    var opts={};
+    npCanvas.Utils.extends(opts,ele);
+    var ctx=this.ctx;
+    ctx.moveTo(opts.x1,opts.y1);
+    ctx.bezierCurveTo(opts.cpx1,opts.cpy1,opts.cpx2,opts.cpy2,opts.x2,opts.y2);
+    return this;
+}
+// 绘制图片
+npCanvas.prototype.DrawImage=function(ele){
+    var opts={};
+    npCanvas.Utils.extends(opts,ele);
+    var ctx=this.ctx;
+    if(!opts.sx && !opts.width){
+        ctx.drawImage(opts.image,opts.x,opts.y);
+    }else if(!opts.sx && opts.width){
+        ctx.drawImage(opts.image,opts.x,opts.y,opts.width,opts.height);
+    }else if(opts.sx && opts.width){
+        ctx.drawImage(opts.image,opts.sx,opts.sy,opts.swidth,opts.sheight,opts.x,opts.y,opts.width,opts.height);
+    }
+    return this;
+}
+// 绘制数组路径
+npCanvas.prototype.drawShapes=function(lists){
+    if(!lists)lists=this.canvasList;
+    lists.forEach(this.drawShape,this);
+}
+npCanvas.prototype.drawShape=function(shape,is_drawColor){
+    var ctx=this.ctx;
+    ctx.save();
+    ctx.beginPath();
+    // 设置alpha
+    this.alpha(shape.draws);
+    // 中心点
+    this.translate(shape.draws);
+    //旋转角度
+    this.rotate(shape);
+    // transform
+    this.transform(shape.draws);
+    //绘制
+    this[shape.shape]?this[shape.shape](shape):'';
+    //上色
+    if(is_drawColor!==false)this.drawColor(shape.draws);
+    // ctx.closePath();
+    ctx.restore();
+    return this;
+}
+// 设置alpha
+npCanvas.prototype.alpha=function(draws){
+    var ctx=this.ctx;
+    if(!npCanvas.Utils.isUndefined(draws.alpha)){
+        ctx.globalAlpha=draws.alpha;
+    }
+    return this;
+}
+// 绘制颜色
+npCanvas.prototype.drawColor=function(opts){
+    if(!opts.fill && !opts.strokeWidth && !opts.stroke){
+        this.ctx.lineWidth=1;
+        this.ctx.strokeStyle='#000';
+        this.ctx.stroke();
+    }else{
+        if(opts.strokeWidth || opts.stroke){
+            if(!opts.strokeWidth)opts.strokeWidth=1;
+            if(!opts.stroke)opts.stroke='#000';
+            this.ctx.lineWidth=opts.strokeWidth;
+            this.ctx.strokeStyle=opts.stroke;
+            this.ctx.stroke();
+        }
+        if(opts.fill){
+            this.ctx.fillStyle=opts.fill;
+            this.ctx.fill();
+        }
+    }
+    return this;
+}
+// 中心点移动
+npCanvas.prototype.translate=function(draws){
+    var ctx=this.ctx;
+    if(draws.translate){
+        ctx.translate.apply(ctx,draws.translate.split(','));
+    }
+    return this;
+}
+// 旋转角度
+npCanvas.prototype.rotate=function(shape){
+    var ctx=this.ctx;
+    if(shape.draws.angle){
+        this.angle(shape);
+    }else if(shape.draws.rotate){
+        ctx.rotate(shape.draws.rotate*Math.PI/180);
+    }
+    return this;
+}
+// angle
+npCanvas.prototype.angle=function(shape){
+    var ctx=this.ctx;
+    var angle=shape.draws.angle
+    if(angle){
+        if(shape.shape=='Act' || shape.shape=='Circle'){
+            ctx.translate(shape.x,shape.y);
+            ctx.rotate(angle*Math.PI/180);
+            ctx.translate(-(shape.x),-(shape.y));
+        }else if(shape.shape=='Line'){
+            ctx.translate(shape.x1+shape.width/2,shape.y1+shape.height/2);
+            ctx.rotate(angle*Math.PI/180);
+            ctx.translate(-(shape.x1+shape.width/2),-(shape.y1+shape.height/2));
+        }else{
+            ctx.translate(shape.x+shape.width/2,shape.y+shape.height/2);
+            ctx.rotate(angle*Math.PI/180);
+            ctx.translate(-(shape.x+shape.width/2),-(shape.y+shape.height/2));
+        }
+    }
+    return this;
+}
+// transform
+npCanvas.prototype.transform=function(draws){
+    var ctx=this.ctx;
+    if(draws.transform){
+        ctx.transform.apply(ctx,draws.transform.split(','));
+    }
+    return this;
+}
+npCanvas.prototype.clear=function(){
+    this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+}
+npCanvas.prototype.renderAll=function(){
+    this.clear();
+    this.drawShapes();
+    return this;
+}
+//isMouseInGraph
+npCanvas.prototype.isMouseInGraph=function(ele,mouse){
+    var ctx=this.ctx;
+    switch (ele.shape) {
+        case 'Text':
+            var textBaseline=ele.draws.textBaseline;
+            var y=ele.y;
+            if(textBaseline=='top' || textBaseline=='hanging'){
+                y=ele.y;
+            }else if(textBaseline=='bottom' || textBaseline=='alphabetic'){
+                y=ele.y-ele.height
+            }else if(textBaseline=='middle'){
+                y=ele.y-ele.height/2
+            }
+            var shape=new npCanvas.Rect({
+                x:ele.x,
+                y:y,
+                width:ele.width,
+                height:ele.height
+            },ele.draws);
+            this.drawShape(shape,false);
+            break;
+        case 'DrawImage':
+            var shape=new npCanvas.Rect({
+                x:ele.x,
+                y:ele.y,
+                width:ele.width,
+                height:ele.height
+            },ele.draws);
+            this.drawShape(shape,false);
+            break;
+        default:
+            this.drawShape(ele,false);
+    }
+    return  ctx.isPointInPath(mouse.x , mouse.y);
+}
+npCanvas.prototype.setStyle=function(){
+    var style=this.style;
+    if(style){
+        for(var i in style){
+            this.canvas.style[i]=style[i];
+        }
+    }
+}
+
+/**
+ * Object 对象
+ */
+
+npCanvas.Object=function(){
+    this.shape='Object';
+    this.width=0;
+    this.height=0;
+    this.draws={};
+    return this;
+}
+npCanvas.Utils.inherit(npCanvas.Object,npCanvas.Events);
+npCanvas.Object.prototype.offset=function(){
+    return this;
+}
+
 /**
  * Circle 画圆
  * @params {Object} obj {x,y,r}
@@ -647,9 +692,9 @@ npCanvas.utils.animate=function(obj){
  */
 npCanvas.Circle=function(obj,draws){
     this.shape='Circle';
-    npCanvas.utils.extends(this,obj);
+    npCanvas.Utils.extends(this,obj);
      if(!draws)draws={};
-    if(npCanvas.utils.isUndefined(this.x,this.y,this.r)){
+    if(npCanvas.Utils.isUndefined(this.x,this.y,this.r)){
         throw new Error('Circle函数需要输入x,y,r参数');
     }
     this.width=2*this.r;
@@ -657,6 +702,7 @@ npCanvas.Circle=function(obj,draws){
     this.draws=draws;
     return this;
 }
+npCanvas.Utils.inherit(npCanvas.Circle,npCanvas.Object);
 npCanvas.Circle.prototype.offset=function(offset){
     this.x+=offset.x;
     this.y+=offset.y;
@@ -668,9 +714,9 @@ npCanvas.Circle.prototype.offset=function(offset){
  */
 npCanvas.Line=function(obj,draws){
     this.shape='Line';
-    npCanvas.utils.extends(this,obj);
+    npCanvas.Utils.extends(this,obj);
      if(!draws)draws={};
-    if(npCanvas.utils.isUndefined(this.x1,this.y1,this.x2,this.y2)){
+    if(npCanvas.Utils.isUndefined(this.x1,this.y1,this.x2,this.y2)){
         throw new Error('Line函数需要输入x1、y1、x2、y2参数');
     }
     this.width=Math.abs(this.x1-this.x2);
@@ -678,6 +724,7 @@ npCanvas.Line=function(obj,draws){
     this.draws=draws;
     return this;
 }
+npCanvas.Utils.inherit(npCanvas.Line,npCanvas.Object);
 npCanvas.Line.prototype.offset=function(offset){
     this.x1=this.x1+offset.x;
     this.y1+=offset.y;
@@ -691,9 +738,9 @@ npCanvas.Line.prototype.offset=function(offset){
  */
  npCanvas.Rect=function(obj,draws){
      this.shape='Rect';
-     npCanvas.utils.extends(this,obj);
+     npCanvas.Utils.extends(this,obj);
       if(!draws)draws={};
-     if(npCanvas.utils.isUndefined(this.x,this.y,this.width,this.height)){
+     if(npCanvas.Utils.isUndefined(this.x,this.y,this.width,this.height)){
          throw new Error('Rect函数需要输入x,y,width,height参数');
      }
      this.width=this.width;
@@ -701,6 +748,7 @@ npCanvas.Line.prototype.offset=function(offset){
      this.draws=draws;
      return this;
  }
+ npCanvas.Utils.inherit(npCanvas.Rect,npCanvas.Object);
  npCanvas.Rect.prototype.offset=function(offset){
      this.x+=offset.x;
      this.y+=offset.y;
@@ -712,14 +760,15 @@ npCanvas.Line.prototype.offset=function(offset){
   */
   npCanvas.Text=function(obj,draws){
       this.shape='Text';
-      npCanvas.utils.extends(this,obj);
+      npCanvas.Utils.extends(this,obj);
       if(!draws)draws={};
-      if(npCanvas.utils.isUndefined(this.x,this.y,this.text)){
+      if(npCanvas.Utils.isUndefined(this.x,this.y,this.text)){
           throw new Error('Text函数需要输入x,y,text');
       }
       this.draws=draws;
       return this;
   }
+  npCanvas.Utils.inherit(npCanvas.Text,npCanvas.Object);
   npCanvas.Text.prototype.offset=function(offset){
       this.x+=offset.x;
       this.y+=offset.y;
@@ -731,9 +780,9 @@ npCanvas.Line.prototype.offset=function(offset){
    */
 npCanvas.Act=function(obj,draws){
    this.shape='Act';
-   npCanvas.utils.extends(this,obj);
+   npCanvas.Utils.extends(this,obj);
    if(!draws)draws={};
-   if(npCanvas.utils.isUndefined(this.x,this.y,this.r,this.startAngle,this.endAngle)){
+   if(npCanvas.Utils.isUndefined(this.x,this.y,this.r,this.startAngle,this.endAngle)){
        throw new Error('Arc函数需要输入x,y,r,startAngle,endAngle');
    }
    if(this.counterclockwise===undefined)this.counterclockwise=false;// 顺时针
@@ -741,6 +790,7 @@ npCanvas.Act=function(obj,draws){
    this.draws=draws;
    return this;
 }
+npCanvas.Utils.inherit(npCanvas.Act,npCanvas.Object);
 npCanvas.Act.prototype.offset=function(offset){
    this.x+=offset.x;
    this.y+=offset.y;
@@ -752,14 +802,15 @@ npCanvas.Act.prototype.offset=function(offset){
  */
 npCanvas.QuadraticCurveTo=function(obj,draws){
     this.shape='QuadraticCurveTo';
-    npCanvas.utils.extends(this,obj);
+    npCanvas.Utils.extends(this,obj);
     if(!draws)draws={};
-    if(npCanvas.utils.isUndefined(this.x1,this.y1,this.x2,this.y2,this.cpx,this.cpy)){
+    if(npCanvas.Utils.isUndefined(this.x1,this.y1,this.x2,this.y2,this.cpx,this.cpy)){
         throw new Error('QuadraticCurveTo函数需要输入x1,y1,x2,y2,cpx,cpy');
     }
     this.draws=draws;
     return this;
 }
+npCanvas.Utils.inherit(npCanvas.QuadraticCurveTo,npCanvas.Object);
 npCanvas.QuadraticCurveTo.prototype.offset=function(offset){
     this.x1+=offset.x;
     this.x2+=offset.x;
@@ -775,14 +826,15 @@ npCanvas.QuadraticCurveTo.prototype.offset=function(offset){
  */
  npCanvas.BezierCurveTo=function(obj,draws){
      this.shape='BezierCurveTo';
-     npCanvas.utils.extends(this,obj);
+     npCanvas.Utils.extends(this,obj);
      if(!draws)draws={};
-     if(npCanvas.utils.isUndefined(this.x1,this.y1,this.x2,this.y2,this.cpx1,this.cpy1,this.cpx2,this.cpy2)){
+     if(npCanvas.Utils.isUndefined(this.x1,this.y1,this.x2,this.y2,this.cpx1,this.cpy1,this.cpx2,this.cpy2)){
          throw new Error('QuadraticCurveTo函数需要输入x1,y1,x2,y2,cpx1,cpy1,cpx2,cpx2');
      }
      this.draws=draws;
      return this;
  }
+ npCanvas.Utils.inherit(npCanvas.BezierCurveTo,npCanvas.Object);
  npCanvas.BezierCurveTo.prototype.offset=function(offset){
      this.x1+=offset.x;
      this.x2+=offset.x;
@@ -800,9 +852,9 @@ npCanvas.QuadraticCurveTo.prototype.offset=function(offset){
  */
 npCanvas.DrawImage=function(obj,draws){
     this.shape='DrawImage';
-    npCanvas.utils.extends(this,obj);
+    npCanvas.Utils.extends(this,obj);
     if(!draws)draws={};
-    if(npCanvas.utils.isUndefined(this.x,this.y,this.image)){
+    if(npCanvas.Utils.isUndefined(this.x,this.y,this.image)){
         throw new Error('DrawImage函数需要输入x,y,image');
     }
     this.width=this.image.width;
@@ -810,6 +862,7 @@ npCanvas.DrawImage=function(obj,draws){
     this.draws=draws;
     return this;
 }
+npCanvas.Utils.inherit(npCanvas.DrawImage,npCanvas.Object);
 npCanvas.DrawImage.prototype.offset=function(offset){
     this.x+=offset.x;
     this.y+=offset.y;

@@ -59,7 +59,8 @@
         y:200,
         r:50
     },{
-        fill:'rgba(0, 33, 66 , 1)'
+        fill:'rgba(0, 33, 66 , 1)',
+        is_drage:true
     });
     circle2.lines=[line1,line2];
     var circle3=new npCanvas.Circle({
@@ -142,7 +143,7 @@
         x2:300,
         y2:300
     })
-    var img1=npCanvas.utils.formUrl('/demo/images/img.jpg').then(function(img){
+    var img1=npCanvas.Utils.formUrl('/demo/images/img.jpg').then(function(img){
         var image1=new npCanvas.DrawImage({
             image:img,
             x:0,
@@ -151,6 +152,9 @@
             alpha:.5,
             is_drage:true
         });
+        image1.on('shape:move',function(event){
+            // console.log(event);
+        })
         canvas.add(image1);
     })
     canvas.add(line1,line2,circle1,circle2,circle3,rect1,rect3,rect2,text1,txt,act1,act2,quadraticCurveTo1);
@@ -164,7 +168,7 @@
         }
     });
     function animate(){
-        npCanvas.utils.animate({
+        npCanvas.Utils.animate({
             begin:0,
             changeVal:360,
             mode:'Sine.easeOut',
