@@ -7,9 +7,9 @@
  * `canvas.add()` 添加形状
  * `canvas.renderAll()` 重新渲染
  * `canvas.clear()` 清空canvas
- * `canvas.animate()` 动画，@params {Object} {begin,changeVal,duration,mode,callback}
 
 形状：@params2 {Object} draws {fill,stoke,strokeWidth,rotate,angle,transform(1,0,0,1,0,0),alpha,is_drage}
+ * `npCanvas.Object` 不可实例化 用来继承
  * `npCanvas.Circle` @params1 {Object} {x,y,r}
  * `npCanvas.Line` @params1 {Object} {x1,y1,x2,y2}
  * `npCanvas.Rect` @params1 {Object} {x,y,width,height} @params2 {Objst} {radiusWidth}
@@ -18,6 +18,13 @@
  * `npCanvas.QuadraticCurveTo` @params1 {Object} {x1,y1,cpx,cpy,x2,y2}
  * `npCanvas.BezierCurveTo` @params1 {Object} {x1,y1,cpx1,cpy1,cpx2,cpy2,x2,y2}
  * `npCanvas.DrawImage` @params1 {Object} {x,y,image[,width][,height][,sx][,sy][,swidth][,sheight]}
+
+工具函数：
+ * `npCanvas.Utils.inherit(params1,params2)` params1被继承的 params2 继承的父
+ * `npCanvas.Utils.animate` 动画，@params {Object} {begin,changeVal,duration,mode,callback}
+ * `npCanvas.Utils.extends` 合并对象
+ * `npCanvas.Utils.formUrl` 加载一个图片 @return Promise @params {String} 图片url
+ * `npCanvas.Utils.noop` 空函数
 
 增量的函数:
  * `shape.offset(offset)` offset={x,y}
