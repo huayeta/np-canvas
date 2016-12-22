@@ -353,8 +353,10 @@ npCanvas.prototype.drage=function(){
             y:e.clientY-_this.canvasPos.top
         };
         _this.canvasList.forEach(function(shape){
-            if(_this.isMouseInGraph(shape,mouse) && (_this.is_drage || shape.draws.is_drage)){
-                _this.canvasList_tmp.push(shape);
+            if(_this.isMouseInGraph(shape,mouse)){
+                if(_this.is_drage || shape.draws.is_drage){
+                    _this.canvasList_tmp.push(shape);
+                }
                 var mousemove=function(e){
                     if(shape===_this.canvasList_tmp[_this.canvasList_tmp.length-1]){
                         var mouse_tmp={
@@ -385,6 +387,14 @@ npCanvas.prototype.drage=function(){
                     }
                 }
                 var mouseup=function(e){
+                    _this.fire('object:click',{
+                        originEvent:e,
+                        target:shape
+                    })
+                    shape.fire('shape:click',{
+                        originEvent:e,
+                        target:shape
+                    })
                     _this.canvasList_tmp=[];
                     mouse=null;
                     shape=null;
@@ -681,6 +691,8 @@ npCanvas.Object=function(){
 }
 npCanvas.Utils.inherit(npCanvas.Object,npCanvas.Events);
 npCanvas.Object.prototype.offset=function(){
+    this.x+=offset.x;
+    this.y+=offset.y;
     return this;
 }
 
@@ -755,7 +767,7 @@ npCanvas.Line.prototype.offset=function(offset){
      return this;
  }
  /**
-  * Rect 矩形
+  * Rect 文字
   * @params {Object} obj {x,y,width,height}
   */
   npCanvas.Text=function(obj,draws){
