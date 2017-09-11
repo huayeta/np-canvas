@@ -18,6 +18,8 @@ var npCanvas=function(id,obj){
     this.canvasList_tmp=[];
     // 拖拽
     this.drage();
+    // 点击事件
+    this._click();
     return this;
 }
 /**
@@ -353,6 +355,7 @@ npCanvas.prototype.drage=function(){
             y:e.clientY-_this.canvasPos.top
         };
         _this.canvasList.forEach(function(shape){
+            // console.log(_this.isMouseInGraph(shape,mouse))
             if(_this.isMouseInGraph(shape,mouse)){
                 if(_this.is_drage || shape.draws.is_drage){
                     _this.canvasList_tmp.push(shape);
@@ -409,7 +412,42 @@ npCanvas.prototype.drage=function(){
         })
         e.preventDefault();
     },false)
+
     return this;
+}
+npCanvas.prototype._click=function(){
+    var _this=this;
+    // 点击事件
+    _this.canvas.addEventListener('click',function(e){
+        // _this.fire('object:click',event);
+    },false)
+    // 鼠标移动事件
+    _this.canvas.addEventListener('mousemove',function(e){
+        _this.fire('object:mousemove',{
+            originEvent:e
+        });
+        var mouse={
+            x:e.clientX-_this.canvasPos.left,
+            y:e.clientY-_this.canvasPos.top
+        };
+        _this.canvasList.forEach(function(shape){
+            // console.log(_this.isMouseInGraph(shape,mouse))
+            var is_mouse_in_graph=_this.isMouseInGraph(shape,mouse);
+            if(is_mouse_in_graph){
+                shape.fire('shape:mouseover',{
+                    originEvent:e,
+                    shape:shape
+                });
+                shape.is_mouseover=true;
+            }else if(shape.is_mouseover){
+                shape.is_mouseover=false;
+                shape.fire('shape:mouseleave',{
+                    originEvent:e,
+                    shape:shape
+                });
+            }
+        })
+    },false)
 }
 npCanvas.prototype.add=function(){
     var _this=this;
@@ -599,7 +637,9 @@ npCanvas.prototype.rotate=function(shape){
 // angle
 npCanvas.prototype.angle=function(shape){
     var ctx=this.ctx;
-    var angle=shape.draws.angle
+    var angle=shape.draws.angle;
+    var angleCenter=shape.draws.angleCenter;
+    // console.log(shape.shape);
     if(angle){
         if(shape.shape=='Act' || shape.shape=='Circle'){
             ctx.translate(shape.x,shape.y);
@@ -610,9 +650,17 @@ npCanvas.prototype.angle=function(shape){
             ctx.rotate(angle*Math.PI/180);
             ctx.translate(-(shape.x1+shape.width/2),-(shape.y1+shape.height/2));
         }else{
-            ctx.translate(shape.x+shape.width/2,shape.y+shape.height/2);
+            if(angleCenter){
+                ctx.translate(angleCenter.x,angleCenter.y);
+            }else{
+                ctx.translate(shape.x+shape.width/2,shape.y+shape.height/2);
+            }
             ctx.rotate(angle*Math.PI/180);
-            ctx.translate(-(shape.x+shape.width/2),-(shape.y+shape.height/2));
+            if(angleCenter){
+                ctx.translate(-angleCenter.x,-angleCenter.y);
+            }else{
+                ctx.translate(-(shape.x+shape.width/2),-(shape.y+shape.height/2));
+            }
         }
     }
     return this;
@@ -662,6 +710,22 @@ npCanvas.prototype.isMouseInGraph=function(ele,mouse){
                 width:ele.width,
                 height:ele.height
             },ele.draws);
+            this.drawShape(shape,false);
+            break;
+        case 'Line':
+            var shape=new npCanvas.Rect({
+                x:ele.x1,
+                y:ele.y1-ele.draws.strokeWidth/2,
+                width:Math.sqrt(Math.abs(Math.pow(ele.x2-ele.x1,2))+Math.abs(Math.pow(ele.y2-ele.y1,2))),
+                height:ele.draws.strokeWidth,
+            },{
+                fill:'#000',
+                angle:Math.atan2(ele.y2-ele.y1,ele.x2-ele.x1)*180/Math.PI,
+                angleCenter:{
+                    x:ele.x1,
+                    y:ele.y1,
+                }
+            });
             this.drawShape(shape,false);
             break;
         default:

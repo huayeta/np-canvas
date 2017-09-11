@@ -10,24 +10,66 @@
             margin: 0;
             padding: 0;
         }
-        #canvas{
-            margin-top: 10px;
-            margin-left: 10px;
-            border: 1px solid #000;
-            border-radius:
+        body,html{
+            width: 100%;
+            height: 100%;
         }
     </style>
 </head>
 <body>
-    <canvas id="canvas" width="600" height="600"></canvas>
+    <canvas id="canvas" width="800" height="800"></canvas>
 </body>
 </html>
+<script src="/index.js" charset="utf-8"></script>
 <script type="text/javascript">
-    var canvas=document.getElementById('canvas');
-    var ctx=canvas.getContext('2d');
-    // 曲线
-    ctx.save();
-    ctx.beginPath();
-    
-    ctx.restore();
+    var canvas=new npCanvas('canvas',{
+        is_drage:false
+    });
+    var circle=new npCanvas.Circle({
+        x:200,
+        y:200,
+        r:4
+    },{
+        fill:'rgba(0, 33, 66 , 1)',
+        is_drage:true
+    });
+    var line1=new npCanvas.Line({
+        x1:100,
+        y1:100,
+        x2:200,
+        y2:200
+    },{
+        strokeWidth:10,
+        stroke:'red',
+        is_drage:true
+    });
+    console.log(line1);
+    var rect1=new npCanvas.Rect({
+        x:line1.x1,
+        y:line1.y1-line1.draws.strokeWidth/2,
+        width:Math.sqrt(Math.abs(Math.pow(line1.x2-line1.x1,2))+Math.abs(Math.pow(line1.y2-line1.y1,2))),
+        height:line1.draws.strokeWidth,
+    },{
+        fill:'#000',
+        angle:Math.atan2(line1.y2-line1.y1,line1.x2-line1.x1)*180/Math.PI,
+        angleCenter:{
+            x:line1.x1,
+            y:line1.y1,
+        }
+    });
+    var rect2=new npCanvas.Rect({
+        x:line1.x1,
+        y:line1.y1-line1.draws.strokeWidth/2,
+        width:Math.sqrt(Math.abs(Math.pow(line1.x2-line1.x1,2))+Math.abs(Math.pow(line1.y2-line1.y1,2))),
+        height:line1.draws.strokeWidth,
+    },{
+        fill:'#ccc',
+    });
+    console.log(rect1);
+    line1.on('shape:mouseover',function(event){
+        console.log('line:mouseover');
+    }).on('shape:mouseleave',function(){
+        console.log('line:mouseleave');
+    })
+    canvas.add(circle,line1,rect2);
 </script>
