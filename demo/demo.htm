@@ -156,10 +156,11 @@
             console.log(event);
         })
         canvas.add(image1);
+        canvas.renderAll();
     })
     canvas.add(line1,line2,circle1,circle2,circle3,rect1,rect3,rect2,text1,txt,act1,act2,quadraticCurveTo1);
+    canvas.renderAll();
     canvas.on('object:move',function(event){
-        console.log(event);
         if(event.target===circle2){
             line1.x2=circle2.x;
             line1.y2=circle2.y;

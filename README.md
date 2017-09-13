@@ -25,6 +25,8 @@
 形状的函数
  * `shape.on('shape:move')` 移动函数
  * `shape.on('shape:click')` 点击函数
+ * `shape.on('shape:mouseover')` 移动函数
+ * `shape.on('shape:mouseleave')` 移出函数
  * `shape.offset(offset)` 增量函数 offset={x,y}
 
 工具函数：

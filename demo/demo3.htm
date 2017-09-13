@@ -25,51 +25,116 @@
     var canvas=new npCanvas('canvas',{
         is_drage:false
     });
-    var circle=new npCanvas.Circle({
-        x:200,
-        y:200,
-        r:4
+    var Text=new npCanvas.Text({
+        x:0,
+        y:0,
+        text:''
     },{
-        fill:'rgba(0, 33, 66 , 1)',
-        is_drage:true
+        backgroundColor:'rgba(0,0,0,.6)',
+        padding:10,
+        fill:'#fff'
     });
-    var line1=new npCanvas.Line({
-        x1:100,
-        y1:100,
-        x2:200,
-        y2:200
-    },{
-        strokeWidth:10,
-        stroke:'red',
-        is_drage:true
-    });
-    console.log(line1);
-    var rect1=new npCanvas.Rect({
-        x:line1.x1,
-        y:line1.y1-line1.draws.strokeWidth/2,
-        width:Math.sqrt(Math.abs(Math.pow(line1.x2-line1.x1,2))+Math.abs(Math.pow(line1.y2-line1.y1,2))),
-        height:line1.draws.strokeWidth,
-    },{
-        fill:'#000',
-        angle:Math.atan2(line1.y2-line1.y1,line1.x2-line1.x1)*180/Math.PI,
-        angleCenter:{
-            x:line1.x1,
-            y:line1.y1,
-        }
-    });
-    var rect2=new npCanvas.Rect({
-        x:line1.x1,
-        y:line1.y1-line1.draws.strokeWidth/2,
-        width:Math.sqrt(Math.abs(Math.pow(line1.x2-line1.x1,2))+Math.abs(Math.pow(line1.y2-line1.y1,2))),
-        height:line1.draws.strokeWidth,
-    },{
-        fill:'#ccc',
-    });
-    console.log(rect1);
-    line1.on('shape:mouseover',function(event){
-        console.log('line:mouseover');
-    }).on('shape:mouseleave',function(){
-        console.log('line:mouseleave');
+    // [东经，北纬]
+    var chart_data={"nodes":[{"name":"gz08-l3-05","sshIp":"183.60.189.29","local":"广州","longitude":"23.125178","latitude":"113.280637","hostIp":"1-5","status":"up","ip":["10.195.1.39"]},{"name":"vm-gz07-l3-03","sshIp":"183.60.189.15","local":"广州","longitude":"23.125178","latitude":"113.280637","hostIp":"1-8","status":"up","ip":["10.195.1.24"]},{"name":"cn_gz07-l6-fwd-0001","sshIp":"113.108.239.32","local":"广州","longitude":"23.125178","latitude":"113.280637","hostIp":"1-3","status":"up","ip":["10.195.1.25"]},{"name":"sz01","sshIp":"120.77.170.59","local":"深圳","longitude":"22.547","latitude":"114.085947","hostIp":"1-1","status":"up","ip":["10.195.3.120"]},{"name":"cn_gz07-l6-fwd-0002","sshIp":"113.108.239.18","local":"广州","longitude":"23.125178","latitude":"113.280637","hostIp":"1-4","status":"up","ip":{"0":"10.195.1.26","5":"10.128.7.15"}},{"name":"sh01","sshIp":"106.14.169.131","local":"上海","longitude":"31.231706","latitude":"121.472644","hostIp":"1-2","status":"up","ip":["10.192.1.239"]},{"name":"tok_sl-l6-fwd-0001","sshIp":"161.202.152.102","local":"东京","longitude":"35.7090259","latitude":"139.7319925","hostIp":"1-6","status":"up","ip":["10.133.25.12"]},{"name":"org_aws-lonlife-l6-0001","sshIp":"34.212.44.12","local":"波特兰","longitude":"45.536701","latitude":"-122.650841","hostIp":"1-7","status":"up","ip":["10.197.248.149"]}],"links":{"cn_gz07-l6-fwd-0002^gz08-l3-05^1":{"linkname":"cn_gz07-l6-fwd-0002^gz08-l3-05^1","label":20013,"dstip":"10.195.1.39","dstnode":"gz08-l3-05","cost":5,"state":"up","srcnode":"cn_gz07-l6-fwd-0002","srcip":"10.195.1.26","type":"ip2ip"},"cn_gz07-l6-fwd-0002^vm-gz07-l3-03^1":{"linkname":"cn_gz07-l6-fwd-0002^vm-gz07-l3-03^1","label":20003,"dstip":"10.195.1.24","dstnode":"vm-gz07-l3-03","cost":0,"state":"up","srcnode":"cn_gz07-l6-fwd-0002","srcip":"10.195.1.26","type":"ip2ip"},"cn_gz07-l6-fwd-0001^cn_gz07-l6-fwd-0002^1":{"linkname":"cn_gz07-l6-fwd-0001^cn_gz07-l6-fwd-0002^1","label":20012,"dstip":"10.195.1.25","dstnode":"cn_gz07-l6-fwd-0001","cost":4294967295,"state":"down","srcnode":"cn_gz07-l6-fwd-0002","srcip":"10.195.1.26","type":"ip2ip"},"sh01^sz01^1":{"linkname":"sh01^sz01^1","label":20007,"dstip":"10.195.3.120","dstnode":"sz01","cost":38,"state":"up","srcnode":"sh01","srcip":"10.192.1.239","type":"ip2ip"},"cn_gz07-l6-fwd-0002^sh01^1":{"linkname":"cn_gz07-l6-fwd-0002^sh01^1","label":20006,"dstip":"10.195.1.26","dstnode":"cn_gz07-l6-fwd-0002","cost":4294967295,"state":"down","srcnode":"sh01","srcip":"10.192.1.239","type":"ip2ip"},"cn_gz07-l6-fwd-0002^org_aws-lonlife-l6-0001^1":{"linkname":"cn_gz07-l6-fwd-0002^org_aws-lonlife-l6-0001^1","label":20010,"dstip":"10.195.1.26","dstnode":"cn_gz07-l6-fwd-0002","cost":4294967295,"state":"down","srcnode":"org_aws-lonlife-l6-0001","srcip":"10.197.248.149","type":"ip2ip"},"tok_sl-l6-fwd-0001^cn_gz07-l6-fwd-0002^1":{"linkname":"tok_sl-l6-fwd-0001^cn_gz07-l6-fwd-0002^1","label":20001,"dstip":"10.128.7.15","dstnode":"cn_gz07-l6-fwd-0002","cost":4294967295,"state":"down","srcnode":"tok_sl-l6-fwd-0001","srcip":"10.133.25.12","type":"ip2ip"}}};
+    // var nodes=[{name:'beijing',local:'北京'},{name:'shanghai',local:'上海'}];
+    // var links=[{srcnode:'beijing',dstnode:'shanghai'}];
+    var nodes=chart_data.nodes;
+    var links=chart_data.links;
+    var nodes_obj={};
+    nodes.map(function(node){
+        node.x=node.x || parseInt(Math.random()*canvas.canvasPos.width);
+        node.y=node.y || parseInt(Math.random()*canvas.canvasPos.height);
+        nodes_obj[node.name]=node;
     })
-    canvas.add(circle,line1,rect2);
+    // 绘制link
+    Object.keys(links).forEach(function(key) {
+        var link=links[key];
+        createLike(link);
+    })
+    // 绘制node
+    Object.keys(nodes_obj).forEach(function(name){
+        var node=nodes_obj[name];
+        createNode(node);
+    })
+    function createNode(opts){
+        var x=opts.x;
+        var y=opts.y;
+        var Node=new npCanvas.Circle({
+            x:x,
+            y:y,
+            r:4
+        },{
+            fill:'rgba(0, 33, 66 , 1)',
+            is_drage:true
+        });
+        Node.on('shape:mouseover',function(event){
+            Text.x=event.mouse.x+10;
+            Text.y=event.mouse.y;
+            Text.text='name:'+opts.name+'\nlocal:'+opts.local;
+            canvas.add(Text);
+            canvas.renderAll();
+            // console.log(canvas.canvasList.length);
+        }).on('shape:mouseleave',function(event){
+            canvas.remove(Text);
+            canvas.renderAll();
+        }).on('shape:move',function(event){
+            nodes_obj[opts.name].links.forEach(function(link){
+                if(link.data.srcnode===opts.name){
+                    link.x1=event.mouse.x;
+                    link.y1=event.mouse.y;
+                }else{
+                    link.x2=event.mouse.x;
+                    link.y2=event.mouse.y;
+                }
+            })
+            nodes_obj[opts.name].text.x=event.mouse.x+10;
+            nodes_obj[opts.name].text.y=event.mouse.y+5;
+            canvas.renderAll();
+        })
+        Node.data=opts;
+        Node.links=[];
+        nodes_obj[opts.name]['node']=Node;
+        canvas.add(Node);
+        var Node_name=new npCanvas.Text({
+            x:opts.x+10,
+            y:opts.y+5,
+            text:opts.name
+        })
+        canvas.add(Node_name);
+        nodes_obj[opts.name]['text']=Node_name;
+        canvas.renderAll();
+        // console.log(Circle.id);
+    }
+    function createLike(opts){
+        var srcnode=nodes_obj[opts.srcnode];
+        var dstnode=nodes_obj[opts.dstnode];
+        var Link=new npCanvas.Line({
+            x1:srcnode.x,
+            y1:srcnode.y,
+            x2:dstnode.x,
+            y2:dstnode.y
+        },{
+            strokeWidth:3,
+            stroke:'red'
+        });
+        Link.on('shape:mouseover',function(event){
+            Text.x=event.mouse.x+10;
+            Text.y=event.mouse.y;
+            Text.text='srcnode:'+opts.srcnode+'\ndstnode:'+opts.dstnode;
+            canvas.add(Text);
+            canvas.renderAll();
+            // console.log(canvas.canvasList.length);
+        }).on('shape:mouseleave',function(event){
+            canvas.remove(Text);
+            canvas.renderAll();
+        })
+        // 保存link
+        if(!nodes_obj[srcnode.name]['links'])nodes_obj[srcnode.name]['links']=[];
+        nodes_obj[srcnode.name]['links'].push(Link);
+        if(!nodes_obj[dstnode.name]['links'])nodes_obj[dstnode.name]['links']=[];
+        nodes_obj[dstnode.name]['links'].push(Link);
+        Link.data=opts;
+        canvas.add(Link);
+        canvas.renderAll();
+    }
 </script>
