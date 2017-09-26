@@ -1,6 +1,7 @@
 "use strict";
 /**
  * npCanvas
+ * @author zhuhui
  */
 
 var npCanvas=function(id,obj){
@@ -396,11 +397,18 @@ npCanvas.prototype.drage=function(){
                 var mouseup=function(e){
                     _this.fire('object:click',{
                         originEvent:e,
-                        target:shape
+                        target:shape,
+                        mouse:mouse
                     })
                     shape.fire('shape:click',{
                         originEvent:e,
-                        target:shape
+                        target:shape,
+                        mouse:mouse
+                    })
+                    shape.fire('shape:mouseup',{
+                        originEvent:e,
+                        target:shape,
+                        mouse:mouse
                     })
                     _this.canvasList_tmp=[];
                     mouse=null;
@@ -466,6 +474,7 @@ npCanvas.prototype.Circle=function(ele){
 npCanvas.prototype.Act=function(ele){
     var opts={};
     npCanvas.Utils.extends(opts,ele);
+    // counterclockwise顺时针还是逆时针
     this.ctx.arc(opts.x,opts.y,opts.r,opts.startAngle,opts.endAngle*Math.PI,opts.counterclockwise);
     return this;
 }
@@ -663,6 +672,10 @@ npCanvas.prototype.alpha=function(draws){
 }
 // 绘制颜色
 npCanvas.prototype.drawColor=function(opts){
+    if(opts.lineCap){
+        // 设置直线两端的样式'butt,round,square'
+        this.ctx.lineCap=opts.lineCap;
+    }
     if(!opts.fill && !opts.strokeWidth && !opts.stroke){
         this.ctx.lineWidth=1;
         this.ctx.strokeStyle='#000';

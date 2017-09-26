@@ -17,7 +17,7 @@
     </style>
 </head>
 <body>
-    <canvas id="canvas" width="800" height="800"></canvas>
+    <canvas id="canvas" width="1200" height="900"></canvas>
 </body>
 </html>
 <script src="/index.js" charset="utf-8"></script>
@@ -35,11 +35,13 @@
         fill:'#fff'
     });
     // [东经，北纬]
-    var chart_data={"nodes":[{"name":"gz08-l3-05","sshIp":"183.60.189.29","local":"广州","longitude":"23.125178","latitude":"113.280637","hostIp":"1-5","status":"up","ip":["10.195.1.39"]},{"name":"vm-gz07-l3-03","sshIp":"183.60.189.15","local":"广州","longitude":"23.125178","latitude":"113.280637","hostIp":"1-8","status":"up","ip":["10.195.1.24"]},{"name":"cn_gz07-l6-fwd-0001","sshIp":"113.108.239.32","local":"广州","longitude":"23.125178","latitude":"113.280637","hostIp":"1-3","status":"up","ip":["10.195.1.25"]},{"name":"sz01","sshIp":"120.77.170.59","local":"深圳","longitude":"22.547","latitude":"114.085947","hostIp":"1-1","status":"up","ip":["10.195.3.120"]},{"name":"cn_gz07-l6-fwd-0002","sshIp":"113.108.239.18","local":"广州","longitude":"23.125178","latitude":"113.280637","hostIp":"1-4","status":"up","ip":{"0":"10.195.1.26","5":"10.128.7.15"}},{"name":"sh01","sshIp":"106.14.169.131","local":"上海","longitude":"31.231706","latitude":"121.472644","hostIp":"1-2","status":"up","ip":["10.192.1.239"]},{"name":"tok_sl-l6-fwd-0001","sshIp":"161.202.152.102","local":"东京","longitude":"35.7090259","latitude":"139.7319925","hostIp":"1-6","status":"up","ip":["10.133.25.12"]},{"name":"org_aws-lonlife-l6-0001","sshIp":"34.212.44.12","local":"波特兰","longitude":"45.536701","latitude":"-122.650841","hostIp":"1-7","status":"up","ip":["10.197.248.149"]}],"links":{"cn_gz07-l6-fwd-0002^gz08-l3-05^1":{"linkname":"cn_gz07-l6-fwd-0002^gz08-l3-05^1","label":20013,"dstip":"10.195.1.39","dstnode":"gz08-l3-05","cost":5,"state":"up","srcnode":"cn_gz07-l6-fwd-0002","srcip":"10.195.1.26","type":"ip2ip"},"cn_gz07-l6-fwd-0002^vm-gz07-l3-03^1":{"linkname":"cn_gz07-l6-fwd-0002^vm-gz07-l3-03^1","label":20003,"dstip":"10.195.1.24","dstnode":"vm-gz07-l3-03","cost":0,"state":"up","srcnode":"cn_gz07-l6-fwd-0002","srcip":"10.195.1.26","type":"ip2ip"},"cn_gz07-l6-fwd-0001^cn_gz07-l6-fwd-0002^1":{"linkname":"cn_gz07-l6-fwd-0001^cn_gz07-l6-fwd-0002^1","label":20012,"dstip":"10.195.1.25","dstnode":"cn_gz07-l6-fwd-0001","cost":4294967295,"state":"down","srcnode":"cn_gz07-l6-fwd-0002","srcip":"10.195.1.26","type":"ip2ip"},"sh01^sz01^1":{"linkname":"sh01^sz01^1","label":20007,"dstip":"10.195.3.120","dstnode":"sz01","cost":38,"state":"up","srcnode":"sh01","srcip":"10.192.1.239","type":"ip2ip"},"cn_gz07-l6-fwd-0002^sh01^1":{"linkname":"cn_gz07-l6-fwd-0002^sh01^1","label":20006,"dstip":"10.195.1.26","dstnode":"cn_gz07-l6-fwd-0002","cost":4294967295,"state":"down","srcnode":"sh01","srcip":"10.192.1.239","type":"ip2ip"},"cn_gz07-l6-fwd-0002^org_aws-lonlife-l6-0001^1":{"linkname":"cn_gz07-l6-fwd-0002^org_aws-lonlife-l6-0001^1","label":20010,"dstip":"10.195.1.26","dstnode":"cn_gz07-l6-fwd-0002","cost":4294967295,"state":"down","srcnode":"org_aws-lonlife-l6-0001","srcip":"10.197.248.149","type":"ip2ip"},"tok_sl-l6-fwd-0001^cn_gz07-l6-fwd-0002^1":{"linkname":"tok_sl-l6-fwd-0001^cn_gz07-l6-fwd-0002^1","label":20001,"dstip":"10.128.7.15","dstnode":"cn_gz07-l6-fwd-0002","cost":4294967295,"state":"down","srcnode":"tok_sl-l6-fwd-0001","srcip":"10.133.25.12","type":"ip2ip"}}};
-    // var nodes=[{name:'beijing',local:'北京'},{name:'shanghai',local:'上海'}];
-    // var links=[{srcnode:'beijing',dstnode:'shanghai'}];
-    var nodes=chart_data.nodes;
-    var links=chart_data.links;
+    var nodes=[{name:'beijing',local:'北京'},{name:'shanghai',local:'上海'}];
+    var links=[{srcnode:'beijing',dstnode:'shanghai'}];
+    // /webajax/link/node-local name,longitude,latitude nodes[0][name]
+    // $.get('/webajax/link/topology').done(function(res){
+    //    if(res.status!=0)return alert('请求节点错误');
+    // var nodes=chart_data.nodes;
+    // var links=chart_data.links;
     var nodes_obj={};
     nodes.map(function(node){
         node.x=node.x || parseInt(Math.random()*canvas.canvasPos.width);
@@ -71,6 +73,12 @@
             Text.x=event.mouse.x+10;
             Text.y=event.mouse.y;
             Text.text='name:'+opts.name+'\nlocal:'+opts.local;
+            if((Text.y+Text.height+10*2)>canvas.canvasPos.height){
+                Text.y=canvas.canvasPos.height-(Text.height+10*2);
+            }
+            if((Text.x+Text.width+10*2)>canvas.canvasPos.width){
+                Text.x=canvas.canvasPos.width-(Text.width+10*2);
+            }
             canvas.add(Text);
             canvas.renderAll();
             // console.log(canvas.canvasList.length);
@@ -108,14 +116,17 @@
     function createLike(opts){
         var srcnode=nodes_obj[opts.srcnode];
         var dstnode=nodes_obj[opts.dstnode];
+        // console.log(opts);
+        var color='#ddd';
+        if(opts.state=='down')color='red';
         var Link=new npCanvas.Line({
             x1:srcnode.x,
             y1:srcnode.y,
             x2:dstnode.x,
             y2:dstnode.y
         },{
-            strokeWidth:3,
-            stroke:'red'
+            strokeWidth:1,
+            stroke:color
         });
         Link.on('shape:mouseover',function(event){
             Text.x=event.mouse.x+10;
