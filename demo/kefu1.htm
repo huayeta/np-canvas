@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>客服动画</title>
+    <style media="screen">
+        #canvas{
+            position: fixed;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="77" height="123"></canvas>
+</body>
+</html>
+<script src="/index.js" charset="utf-8"></script>
+<script type="text/javascript">
+    var canvas=new npCanvas('canvas',{
+        is_drage:false
+    });
+    var imgs=[];
+    var img_doms=[];// 保存dom
+    for(var i=0;i<=74;i++){
+        var index=i;
+        if(index<10)index='0'+index;
+        imgs.push('/demo/kefu/kf_000'+index+'.png');
+    }
+    function drawOne(){
+        // 预绘制1个图片
+        npCanvas.Utils.formUrl(imgs[0]).then(function(img){
+            img_doms[img]=img;
+            var img0=new npCanvas.DrawImage({
+                image:img,
+                x:0,
+                y:0
+            })
+            canvas.add(img0);
+            canvas.renderAll();
+        })
+    }
+    function drawStart(){
+        // 开始动画
+        var index=0;
+        setInterval(function(){
+            index++;
+            var img=new npCanvas.DrawImage({
+                image:img_doms[index],
+                x:0,
+                y:0
+            })
+            canvas.add(img);
+            canvas.renderAll();
+            if(index==imgs.length-1)index=0;
+        },40)
+    }
+    function draw(){
+        // 得去动画img的dom
+        var length=1;
+        for(var i=1;i<imgs.length;i++){
+            (function(index){
+                npCanvas.Utils.formUrl(imgs[index]).then(function(img){
+                    img_doms[index]=img;
+                    length++;
+                    if(length==imgs.length)drawStart();
+                }).catch(function(){
+                    length++;
+                })
+            })(i)
+        }
+    }
+    drawOne();
+    window.onload=function(){
+        draw();
+    }
+</script>
