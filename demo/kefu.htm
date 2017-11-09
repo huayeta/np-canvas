@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>客服动画</title>
+    <style media="screen">
+        #canvas{
+            position: fixed;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="77" height="123"></canvas>
+</body>
+</html>
+<script src="/demo/js/DrawGif.js" charset="utf-8"></script>
+<script type="text/javascript">
+    // 客服动画
+    var imgs=[];
+    for(var i=0;i<=74;i++){
+        var index=i;
+        if(index<10)index='0'+index;
+        imgs.push('/demo/kefu/kf_000'+index+'.png');
+    }
+    var drawGif=new DrawGif({id:'canvas',imgs:imgs});
+    drawGif.drawOne();
+    window.onload=function(){
+        drawGif.draw();
+    }
+</script>

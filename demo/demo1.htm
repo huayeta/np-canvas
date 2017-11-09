@@ -33,7 +33,7 @@
     var rainbow    = ["#ffcc66", "#ccff66", "#66ccff", "#ff6fcf", "#ff6666"];
     var dot_arr=[];
     console.time();
-    for(var i=1000;i>=0;i--){
+    for(var i=10000;i>=0;i--){
         var dot=new npCanvas.Circle({
             x:Math.round(Math.random()*canvas.canvasPos.width),
             y:Math.round(Math.random()*canvas.canvasPos.height),
@@ -45,5 +45,6 @@
         dot_arr.push(dot);
     }
     canvas.add.apply(canvas,dot_arr);
+    canvas.renderAll();
     console.timeEnd();
 </script>

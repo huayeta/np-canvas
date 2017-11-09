@@ -85,16 +85,16 @@ npCanvas.Utils.inherit=function(){
     }
 }
 npCanvas.Utils.formUrl=function(url){
-    if(!url)return Promise.reject(false);
+    if(!url)return Promise.reject(new Error('图片src不存在'));
     return new Promise(function(resolve,reject){
         var img=new Image();
         img.src=url;
-        if(img.complete){
+        if(img.complete)return resolve(img);
+        img.onload=function(){
             resolve(img);
-        }else{
-            img.onload=function(){
-                resolve(img);
-            }
+        }
+        img.onerror=function(){
+            reject(new Error('图片加载失败'));
         }
     })
 }
@@ -445,6 +445,7 @@ npCanvas.prototype._click=function(){
         _this.canvasList.forEach(function(shape){
             // console.log(_this.isMouseInGraph(shape,mouse))
             var is_mouse_in_graph=_this.isMouseInGraph(shape,mouse);
+            // console.log(is_mouse_in_graph,mouse);
             if(is_mouse_in_graph){
                 shape.fire('shape:mouseover',{
                     originEvent:e,
