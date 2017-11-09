@@ -9,6 +9,8 @@
  * `canvas.clear()` 清空canvas
  * `canvas.remove(shape)` 清楚某一个形状
  * `canvas.removeAll()` 清除所有形状
+ * `canvas.setWidth(width)` 设置canvas的宽度
+ * `canvas.setHeight(height)` 设置canvas的高度
 
 事件
  * `canvas.on('object:move')` 当元素运动的时候,参数{originEvent(原生event对象),target(目标形状),x,y}

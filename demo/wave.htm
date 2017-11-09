@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style media="screen">
+        *{
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="300" height="200"></canvas>
+</body>
+</html>
+<script src="/index.js" charset="utf-8"></script>
+<script type="text/javascript">
+    var canvas=new npCanvas('canvas',{
+        is_drage:false
+    })
+    var speed = 0.1;
+    var noise = 30;
+    var phase = 0;
+    canvas.setWidth(window.innerWidth);
+    window.onresize=function(){
+        canvas.setWidth(window.innerWidth);
+    }
+    function drawShape(attenuation, color, width, noise, F){
+        canvas.ctx.moveTo(0, 0);
+        canvas.ctx.beginPath();
+        canvas.ctx.strokeStyle = color;
+        canvas.ctx.lineWidth = width || 1;
+        var x, y;
+        noise = noise * ((canvas.canvas.height / 2) - 4);
+        for (var i = -1; i <= 1; i += 0.02) {
+            i = parseFloat(parseFloat(i).toFixed(2));
+            x = canvas.canvas.width * ((i + 1) / (1 * 2));
+            y = canvas.canvas.height / 2 + noise * Math.pow(Math.sin(i * 10 * attenuation), 1) * Math.sin(F * i - phase);
+            // console.log(x,y);
+            canvas.ctx.lineTo(x, y)
+        }
+        canvas.ctx.lineTo(canvas.canvas.width, canvas.canvas.height);
+        canvas.ctx.lineTo(0, canvas.canvas.height);
+        canvas.ctx.fillStyle = color;
+        canvas.ctx.fill()
+    }
+    function clear(){
+        canvas.ctx.globalCompositeOperation = "destination-out";
+        canvas.ctx.fillRect(0, 0, canvas.canvas.width, canvas.canvas.height);
+        canvas.ctx.globalCompositeOperation = "source-over";
+    }
+    function draw(){
+        phase = (phase + speed) % (Math.PI * 64);
+        clear();
+        drawShape(0.5, "rgba(120,255,212,0.5)", 1, 0.35, 6);
+        drawShape(1, "rgba(0,188,62,0.5)", 1, 0.25, 6);
+        requestAnimationFrame(draw, 1000)
+    }
+    draw();
+</script>

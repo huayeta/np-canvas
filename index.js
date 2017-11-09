@@ -350,6 +350,16 @@ npCanvas.Utils.animate=function(obj){
 }
 
 npCanvas.Utils.inherit(npCanvas,npCanvas.Events);
+// 设置宽度
+npCanvas.prototype.setWidth=function(width){
+    if(!width)return;
+    this.canvas.setAttribute('width',width);
+}
+// 设置高度
+npCanvas.prototype.setHeight=function(height){
+    if(!height)return;
+    this.canvas.setAttribute('height',height);
+}
 npCanvas.prototype.drage=function(){
     var _this=this;
     this.canvas.addEventListener('mousedown',function(e){
