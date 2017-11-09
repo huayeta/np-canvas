@@ -1,3 +1,6 @@
+/**
+ * @author zhuhui
+ */
 ;(function(w){
     var DrawGif=function(opts){
         opts=opts || {};
