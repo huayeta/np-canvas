@@ -9,6 +9,7 @@
  * `canvas.clear()` 清空canvas
  * `canvas.remove(shape)` 清楚某一个形状
  * `canvas.removeAll()` 清除所有形状
+
 事件
  * `canvas.on('object:move')` 当元素运动的时候,参数{originEvent(原生event对象),target(目标形状),x,y}
  * `canvas.on('object:click')` 当元素点击的时候，参数{originEvent(原生event对象),target(目标形状)
