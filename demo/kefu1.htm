@@ -40,8 +40,7 @@
                 x:0,
                 y:0
             })
-            canvas.add(img0);
-            canvas.renderAll();
+            canvas.add(img0).renderAll();
         })
     }
     function drawStart(){
@@ -55,9 +54,7 @@
                 y:0
             })
             // 先去除所有
-            canvas.removeAll();
-            canvas.add(img);
-            canvas.renderAll();
+            canvas.removeAll().add(img).renderAll();
             if(index==imgs.length-1)index=0;
         },40)
     }
@@ -78,6 +75,7 @@
     }
     drawOne();
     window.onload=function(){
+        // 为了不影响页面load时间
         draw();
     }
 </script>

@@ -755,6 +755,7 @@ npCanvas.prototype.transform=function(draws){
 }
 npCanvas.prototype.clear=function(){
     this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+    return this;
 }
 npCanvas.prototype.renderAll=function(){
     this.clear();
@@ -781,6 +782,7 @@ npCanvas.prototype.add=function(){
     this.canvasList=this.canvasList.concat(tmp);
     // console.log(this.canvasList.length);
     // this.drawShapes(args);
+    return this;
 }
 npCanvas.prototype.remove=function(shape){
     var canvasList=this.canvasList;
@@ -792,9 +794,11 @@ npCanvas.prototype.remove=function(shape){
     })
     this.canvasList=tmp;
     // this.renderAll();
+    return this;
 }
 npCanvas.prototype.removeAll=function(){
     this.canvasList=[];
+    return this;
 }
 //isMouseInGraph
 npCanvas.prototype.isMouseInGraph=function(ele,mouse){
