@@ -793,6 +793,9 @@ npCanvas.prototype.remove=function(shape){
     this.canvasList=tmp;
     // this.renderAll();
 }
+npCanvas.prototype.removeAll=function(){
+    this.canvasList=[];
+}
 //isMouseInGraph
 npCanvas.prototype.isMouseInGraph=function(ele,mouse){
     var ctx=this.ctx;

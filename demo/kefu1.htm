@@ -32,6 +32,7 @@
     }
     function drawOne(){
         // 预绘制1个图片
+        canvas.removeAll();
         npCanvas.Utils.formUrl(imgs[0]).then(function(img){
             img_doms[img]=img;
             var img0=new npCanvas.DrawImage({
@@ -53,6 +54,8 @@
                 x:0,
                 y:0
             })
+            // 先去除所有
+            canvas.removeAll();
             canvas.add(img);
             canvas.renderAll();
             if(index==imgs.length-1)index=0;
