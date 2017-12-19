@@ -12,7 +12,7 @@ var npCanvas=function(id,obj){
     this.setStyle();
     this.ctx=this.canvas.getContext('2d');
     //得到canvas的位置
-    this.canvasPos = this.canvas.getBoundingClientRect();
+    this.canvasPos = this.getPos();
     // 所有形状的列表
     this.canvasList=[];
     // 形状的临时列表
@@ -350,16 +350,22 @@ npCanvas.Utils.animate=function(obj){
 }
 
 npCanvas.Utils.inherit(npCanvas,npCanvas.Events);
+// 获取canvas的位置和宽高信息
+npCanvas.prototype.getPos=function(){
+     this.canvasPos=this.canvas.getBoundingClientRect();
+     return this.canvasPos;
+}
 // 设置宽度
 npCanvas.prototype.setWidth=function(width){
     if(!width)return;
-    console.log(width);
     this.canvas.setAttribute('width',width);
+    this.getPos();
 }
 // 设置高度
 npCanvas.prototype.setHeight=function(height){
     if(!height)return;
     this.canvas.setAttribute('height',height);
+    this.getPos();
 }
 npCanvas.prototype.drage=function(){
     var _this=this;
@@ -870,13 +876,27 @@ npCanvas.prototype.isMouseInGraph=function(ele,mouse){
     }
     return  ctx.isPointInPath(mouse.x , mouse.y);
 }
-npCanvas.prototype.setStyle=function(){
-    var style=this.style;
+npCanvas.prototype.setStyle=function(obj){
+    var style=obj || this.style;
     if(style){
         for(var i in style){
             this.canvas.style[i]=style[i];
         }
     }
+}
+// 导出canvas
+npCanvas.prototype.toDataURL=function(min){
+    var canvas=this.canvas;
+    min=min || "images/jpeg"
+    return canvas.toDataURL(min);
+}
+// 获取canvas的像素点
+npCanvas.prototype.getImageData=function(x,y,width,height){
+    var canvas=this.canvas;
+    x=x||0;
+    y=y||0;
+    width=width|| this.width;
+    height=height|| this.height;
 }
 
 /**

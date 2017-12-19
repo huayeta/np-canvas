@@ -11,6 +11,9 @@
  * `canvas.removeAll()` 清除所有形状
  * `canvas.setWidth(width)` 设置canvas的宽度
  * `canvas.setHeight(height)` 设置canvas的高度
+ * `canvas.getPos()` 获取canvas的位置信息和宽高
+ * `canvas.toDataURL(min:images/jpeg)` 导出canvas的为图片base64
+ * `canvas.getImageData(x:0,y:0,width:canvas.width,height:canvas.height)` 获取canvas的像素信息 
 
 事件
  * `canvas.on('object:move')` 当元素运动的时候,参数{originEvent(原生event对象),target(目标形状),x,y}
