@@ -353,6 +353,7 @@ npCanvas.Utils.inherit(npCanvas,npCanvas.Events);
 // 设置宽度
 npCanvas.prototype.setWidth=function(width){
     if(!width)return;
+    console.log(width);
     this.canvas.setAttribute('width',width);
 }
 // 设置高度
@@ -531,7 +532,14 @@ npCanvas.prototype.Text=function(ele){
     var ctx=this.ctx;
     if(opts.draws.font){
         ctx.font=opts.draws.font;
-        var fontSize=parseInt(ctx.font.split(' ')[0]);
+        var fontSize;
+        if(opts.draws.font.indexOf(' ')!=-1){
+            fontSize=parseInt(opts.draws.font.split(' ')[0]);
+        }else{
+            fontSize=parseInt(opts.draws.font);
+            // 默认字体sans-serif
+            ctx.font=fontSize+'px sans-serif';
+        }
         if(fontSize)ele.height=fontSize;
     }
     if(opts.draws.textAlign)ctx.textAlign=opts.draws.textAlign;
@@ -610,7 +618,7 @@ npCanvas.prototype.Text=function(ele){
             }else{
                 ctx.fillText(opts.text,opts.x,opts.y);
             }
-            ele.height=12;
+            if(!ele.height)ele.height=12;
             ele.width=ctx.measureText(opts.text).width;
         }
     }
