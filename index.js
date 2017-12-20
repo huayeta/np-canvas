@@ -892,11 +892,12 @@ npCanvas.prototype.toDataURL=function(min){
 }
 // 获取canvas的像素点
 npCanvas.prototype.getImageData=function(x,y,width,height){
-    var canvas=this.canvas;
+    var ctx=this.ctx;
     x=x||0;
     y=y||0;
-    width=width|| this.width;
-    height=height|| this.height;
+    width=width|| this.canvasPos.width;
+    height=height|| this.canvasPos.height;
+    return ctx.getImageData(x,y,width,height);
 }
 
 /**
